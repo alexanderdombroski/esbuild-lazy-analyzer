@@ -4,6 +4,9 @@
   "description": "An esbuild visualizer that anaylizes lazy-loading of chunks",
   "main": "index.js",
   "scripts": {
+    "build": "node esbuild.mjs",
+    "package": "rm -rf dist && node esbuild.mjs --production",
+    "profile": "esbuild-visualizer --metadata ./profile/meta.json --filename ./profile/visualizer.html && open ./profile/visualizer.html",
     "prepare": "husky"
   },
   "keywords": [],
@@ -11,6 +14,12 @@
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
+    "esbuild": "0.25.10",
+    "esbuild-visualizer": "^0.7.0",
+    "eslint": "^9.37.0",
+    "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.3",
     "prettier": "^3.6.2"
