@@ -1,0 +1,18 @@
+{
+  "name": "esbuild-lazy-analyzer",
+  "version": "1.0.0",
+  "description": "An esbuild visualizer that anaylizes lazy-loading of chunks",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "Alex Dombroski",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.3",
+    "prettier": "^3.6.2"
+  }
+}
