@@ -36,6 +36,7 @@ async function main() {
 		sourcesContent: false,
 		platform: 'node',
 		outdir: 'dist',
+		banner: { js: '#!/usr/bin/env node' },
 		splitting: true,
 		external: [...(await import('node:module')).builtinModules],
 		logLevel: 'silent',

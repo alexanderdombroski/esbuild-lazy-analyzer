@@ -2,8 +2,12 @@
   "name": "esbuild-lazy-analyzer",
   "version": "1.0.0",
   "description": "An esbuild visualizer that anaylizes lazy-loading of chunks",
-  "main": "index.js",
+  "main": "dist/main.js",
+  "bin": {
+    "esbuild-lazy-analyzer": "dist/main.js"
+  },
   "scripts": {
+    "start": "npm run package && node dist/main.js --metafile ./profile/meta-example.json --filename ./profile/lazy-analyzer.html",
     "build": "node esbuild.mjs",
     "package": "rm -rf dist && node esbuild.mjs --production",
     "profile": "esbuild-visualizer --metadata ./profile/meta.json --filename ./profile/visualizer.html && open ./profile/visualizer.html",
@@ -12,8 +16,9 @@
   "keywords": [],
   "author": "Alex Dombroski",
   "license": "MIT",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
+    "@types/node": "^24.6.2",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
     "esbuild": "0.25.10",
