@@ -45,7 +45,6 @@ async function main() {
 			esbuildProblemMatcherPlugin,
 		],
 		minifySyntax: true,
-		drop: production ? ['console'] : [],
 		chunkNames: 'chunks/[name]-[hash]',
 		metafile: true
 	});
