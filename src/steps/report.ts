@@ -1,19 +1,14 @@
 import css from '../components/styles.css';
 import header from '../components/header.html';
 import viewSwitcher from '../components/viewSwitcher.js';
+import initChunks from '../components/initChunks.js';
 import statisticsSection from '../components/statisticSection.html';
 import splittingSection from '../components/splittingSection.html';
 import importingSection from '../components/importingSection.html';
 import type { Metafile, ChunkLayer } from '../types/index';
 
-export function generateReport(
-	// eslint-disable-next-line no-unused-vars
-	metafile: Metafile,
-	// eslint-disable-next-line no-unused-vars
-	chunkLayers: ChunkLayer[]
-): string {
-	// TODO: Use metafile and chunkLayers to build the report
-	const html = `
+export function generateReport(metafile: Metafile, chunkLayers: ChunkLayer[]): string {
+	return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +16,10 @@ export function generateReport(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Esbuild Filemap</title>
   <style>${css}</style>
+  <script>
+    const metafile = ${JSON.stringify(metafile)}
+    const chunkLayers = ${JSON.stringify(chunkLayers)}
+  </script>
 </head>
 <body>
   ${header}
@@ -35,7 +34,6 @@ export function generateReport(
   </main>
 </body>
 <script>${viewSwitcher}</script>
-</html>
-  `;
-	return html;
+<script>${initChunks}</script>
+</html>`;
 }

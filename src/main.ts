@@ -19,7 +19,7 @@ async function main() {
 
 	const metadata = await readMetaFile(metafile);
 	const chunkLayerData = analyzeMetadata(metadata);
-	const reportHtml = generateReport(chunkLayerData);
+	const reportHtml = generateReport(metadata, chunkLayerData);
 	await fs.writeFile(filename, reportHtml);
 	console.log(`Report generated at ${filename}`);
 }
