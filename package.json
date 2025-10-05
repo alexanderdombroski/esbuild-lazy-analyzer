@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "npm run package && node dist/main.js --metafile ./profile/meta-example.json --filename ./profile/lazy-analyzer.html && open ./profile/lazy-analyzer.html",
-    "build": "node esbuild.mjs",
+    "dev": "concurrently \"npm run build\" \"nodemon dist/main.js --metafile ./profile/meta-example.json --filename ./profile/lazy-analyzer.html\" \"open ./profile/lazy-analyzer.html\"",
+    "build": "node esbuild.mjs --watch",
     "package": "rm -rf dist && node esbuild.mjs --production",
     "profile": "esbuild-visualizer --metadata ./profile/meta.json --filename ./profile/visualizer.html && open ./profile/visualizer.html",
     "prepare": "husky"
@@ -21,12 +22,14 @@
     "@types/node": "^24.6.2",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
+    "concurrently": "^9.2.1",
     "esbuild": "0.25.10",
     "esbuild-visualizer": "^0.7.0",
     "eslint": "^9.37.0",
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.3",
+    "nodemon": "^3.1.10",
     "prettier": "^3.6.2"
   }
 }

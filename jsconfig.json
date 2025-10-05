@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "none", // treat files as non-modules (like <script> tags)
+		"allowJs": true, // include JS files
+		"lib": ["ES2020", "DOM"], // browser APIs + modern JS
+		"moduleResolution": "classic", // how browser script resolution works
+		"noEmit": true, // not compiling output
+		"strict": true
+	},
+	"include": ["src/**/*.js"]
+}

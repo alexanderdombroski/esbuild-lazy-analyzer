@@ -47,7 +47,7 @@ async function main() {
 		minifySyntax: true,
 		chunkNames: 'chunks/[name]-[hash]',
 		metafile: true,
-		loader: { '.css': 'text' },
+		loader: { '.css': 'text', '.html': 'text', '.js': 'text' },
 	});
 	if (watch) {
 		await ctx.watch();

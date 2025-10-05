@@ -1,4 +1,6 @@
 import css from '../components/styles.css';
+import header from '../components/header.html';
+import viewSwitcher from '../components/viewSwitcher.js';
 import type { Metafile, ChunkLayer } from '../types/index';
 
 export function generateReport(
@@ -18,20 +20,7 @@ export function generateReport(
   <style>${css}</style>
 </head>
 <body>
-  <header class="top-nav">
-    <div class="title">Esbuild Visualizer</div>
-    <div class="nav-tabs">
-      <button class="active">Project Splitting Overview</button>
-      <button>Lazy Import Analyzer</button>
-      <button>Statistics</button>
-    </div>
-    <div class="controls">
-      <button>Upload Esbuild Metafile JSON</button>
-      <button>Upload ChunkLayer JSON</button>
-      <button>Toggle Theme</button>
-      <button>Export</button>
-    </div>
-  </header>
+  ${header}
   <main class="main-content">
     <aside class="sidebar">
       <h2>Filters & Options</h2>
@@ -43,6 +32,7 @@ export function generateReport(
     </section>
   </main>
 </body>
+<script>${viewSwitcher}</script>
 </html>
   `;
 	return html;
