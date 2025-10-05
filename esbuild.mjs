@@ -1,5 +1,5 @@
 import { context } from 'esbuild';
-import fs from "node:fs/promises"
+import fs from 'node:fs/promises';
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -30,7 +30,7 @@ async function main() {
 		bundle: true,
 		format: 'esm',
 		minify: production,
-    keepNames: !production,
+		keepNames: !production,
 		treeShaking: production,
 		sourcemap: !production,
 		sourcesContent: false,
@@ -46,7 +46,8 @@ async function main() {
 		],
 		minifySyntax: true,
 		chunkNames: 'chunks/[name]-[hash]',
-		metafile: true
+		metafile: true,
+		loader: { '.css': 'text' },
 	});
 	if (watch) {
 		await ctx.watch();

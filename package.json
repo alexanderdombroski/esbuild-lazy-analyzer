@@ -7,7 +7,7 @@
     "esbuild-lazy-analyzer": "dist/main.js"
   },
   "scripts": {
-    "start": "npm run package && node dist/main.js --metafile ./profile/meta-example.json --filename ./profile/lazy-analyzer.html",
+    "start": "npm run package && node dist/main.js --metafile ./profile/meta-example.json --filename ./profile/lazy-analyzer.html && open ./profile/lazy-analyzer.html",
     "build": "node esbuild.mjs",
     "package": "rm -rf dist && node esbuild.mjs --production",
     "profile": "esbuild-visualizer --metadata ./profile/meta.json --filename ./profile/visualizer.html && open ./profile/visualizer.html",
