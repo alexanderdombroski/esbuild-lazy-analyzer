@@ -5,6 +5,9 @@ import initChunks from '../components/initChunks.js';
 import statisticsSection from '../components/statisticSection.html';
 import splittingSection from '../components/splittingSection.html';
 import importingSection from '../components/importingSection.html';
+import lovable from '../components/lovable.html';
+import lovableCss from '../components/lovable.css';
+
 import type { Metafile, ChunkLayer } from '../types/index';
 
 export function generateReport(metafile: Metafile, chunkLayers: ChunkLayer[]): string {
@@ -17,8 +20,8 @@ export function generateReport(metafile: Metafile, chunkLayers: ChunkLayer[]): s
   <title>Esbuild Filemap</title>
   <style>${css}</style>
   <script>
-    const metafile = ${JSON.stringify(metafile)}
-    const chunkLayers = ${JSON.stringify(chunkLayers)}
+    var metafile = ${JSON.stringify(metafile)}
+    var chunkLayers = ${JSON.stringify(chunkLayers)}
   </script>
 </head>
 <body>
@@ -32,6 +35,8 @@ export function generateReport(metafile: Metafile, chunkLayers: ChunkLayer[]): s
     ${importingSection}
     ${statisticsSection}
   </main>
+  <style>${lovableCss}</style>
+  ${lovable}
 </body>
 <script>${viewSwitcher}</script>
 <script>${initChunks}</script>
