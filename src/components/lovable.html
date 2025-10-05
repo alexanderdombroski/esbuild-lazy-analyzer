@@ -5,6 +5,7 @@
 		<div class="view-toggle">
 			<button class="toggle-btn active" data-view="grid">Grid View</button>
 			<button class="toggle-btn" data-view="stats">Statistics</button>
+			<button class="toggle-btn" data-view="graph">Graph View</button>
 		</div>
 	</header>
 
@@ -32,6 +33,11 @@
 					<option value="all">All Entrypoints</option>
 				</select>
 			</div>
+
+			<div class="sidebar-section hidden" id="graph-controls">
+				<h3>Entrypoint</h3>
+				<select id="graph-entrypoint-select" class="select-input"></select>
+			</div>
 		</aside>
 
 		<!-- Content Area -->
@@ -48,6 +54,11 @@
 					<h2>Top 10 Largest Chunks</h2>
 					<div class="bar-chart" id="bar-chart"></div>
 				</div>
+			</div>
+
+			<!-- Graph View -->
+			<div class="view-container hidden" id="graph-view">
+				<svg id="graph-svg" width="100%" height="100%"></svg>
 			</div>
 		</section>
 	</main>
@@ -73,6 +84,12 @@
 		return `hsl(${hues[index % hues.length]}, 70%, 60%)`;
 	}
 
+	function generateLayerColor(layer, offset = 0) {
+		const layerHues = [210, 340, 40, 160, 280, 120, 260, 20];
+		const baseHue = layerHues[layer % layerHues.length];
+		return `hsl(${(baseHue + offset) % 360}, 65%, 55%)`;
+	}
+
 	function calculatePercentage(part, total) {
 		return ((part / total) * 100).toFixed(2);
 	}
@@ -83,6 +100,7 @@
 	let currentSort = 'size';
 	let currentView = 'grid';
 	let currentEntrypoint = 'all';
+	let currentGraphEntrypoint = 0;
 
 	function getChunksData() {
 		const chunks = [];
@@ -315,6 +333,170 @@
 		document.getElementById('tooltip').classList.add('hidden');
 	}
 
+	// Graph View Rendering
+	function renderGraphView() {
+		const svg = document.getElementById('graph-svg');
+		const layer = chunkLayers[currentGraphEntrypoint];
+		if (!layer) return;
+
+		const width = svg.clientWidth || 1000;
+		const height = svg.clientHeight || 800;
+		const centerX = width / 2;
+		const centerY = height / 2;
+		const NODE_RADIUS = 20;
+
+		svg.innerHTML = '';
+
+		const nodes = [];
+		const edges = [];
+
+		function processLayer(layerData, depth, parentNode, angleStart, angleEnd) {
+			const chunks = layerData.eagerImports || [];
+			const subLayers = layerData.chunkLayers || [];
+			const allItems = [...chunks, ...subLayers];
+
+			if (allItems.length === 0) return;
+
+			const RADIUS = 75 + depth * 120;
+			const angleStep = (angleEnd - angleStart) / allItems.length;
+
+			allItems.forEach((item, index) => {
+				const angle = angleStart + angleStep * (index + 0.5);
+				const x = centerX + RADIUS * Math.cos(angle);
+				const y = centerY + RADIUS * Math.sin(angle);
+
+				const isLayer = typeof item === 'object' && item.path;
+				const path = isLayer ? item.path : item;
+				const chunkData = metafile.outputs[path];
+				const eager = layerData.eagerImports.includes(path);
+
+				const node = {
+					path,
+					x,
+					y,
+					depth,
+					eager,
+					color: generateLayerColor(depth, eager ? 10 : -10),
+					chunkData,
+				};
+
+				nodes.push(node);
+
+				if (parentNode) {
+					edges.push({ from: parentNode, to: node });
+				}
+
+				if (isLayer && item.chunkLayers && item.chunkLayers.length > 0) {
+					processLayer(item, depth + 1, node, angle - angleStep / 2, angle + angleStep / 2);
+				}
+			});
+		}
+
+		// Add root node
+		const rootNode = {
+			path: layer.path,
+			x: centerX,
+			y: centerY,
+			depth: 0,
+			color: generateLayerColor(0),
+			chunkData: metafile.outputs[layer.path],
+		};
+		nodes.push(rootNode);
+
+		// Process all layers
+		processLayer(layer, 1, rootNode, 0, Math.PI * 2);
+
+		// Draw edges
+		edges.forEach((edge) => {
+			const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+			line.setAttribute('x1', edge.from.x);
+			line.setAttribute('y1', edge.from.y);
+			line.setAttribute('x2', edge.to.x);
+			line.setAttribute('y2', edge.to.y);
+			line.setAttribute('stroke', '#444');
+			line.setAttribute('stroke-width', '2');
+			line.setAttribute('opacity', '0.4');
+			svg.appendChild(line);
+		});
+
+		// Draw nodes
+		nodes.forEach((node) => {
+			const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+			circle.setAttribute('cx', node.x);
+			circle.setAttribute('cy', node.y);
+			circle.setAttribute('r', NODE_RADIUS);
+			circle.setAttribute('fill', node.color);
+			circle.setAttribute('stroke', '#fff');
+			circle.setAttribute('stroke-width', '2');
+			circle.style.cursor = 'pointer';
+			circle.style.transition = 'all 0.2s';
+
+			circle.addEventListener('mouseenter', (e) => {
+				circle.setAttribute('r', NODE_RADIUS * 1.2);
+				showGraphNodeTooltip(e, node);
+			});
+
+			circle.addEventListener('mouseleave', () => {
+				circle.setAttribute('r', NODE_RADIUS);
+				hideTooltip();
+			});
+
+			svg.appendChild(circle);
+
+			// Add text label
+			const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+			text.setAttribute('x', node.x);
+			text.setAttribute('y', node.y + NODE_RADIUS + 20);
+			text.setAttribute('text-anchor', 'middle');
+			text.setAttribute('fill', '#fff');
+			text.setAttribute('font-size', '12');
+			text.setAttribute('pointer-events', 'none');
+			text.textContent = node.path.split('/').pop().substring(0, 15);
+			svg.appendChild(text);
+		});
+	}
+
+	function showGraphNodeTooltip(e, node) {
+		const tooltip = document.getElementById('tooltip');
+		const totalBytes = getChunksData().reduce((sum, c) => sum + c.bytes, 0);
+		const chunkData = node.chunkData;
+
+		if (!chunkData) return;
+
+		const files = Object.entries(chunkData.inputs || {}).length;
+
+		tooltip.innerHTML = `
+        <div class="tooltip-title">${node.path.split('/').pop()}</div>
+        <div class="tooltip-row">
+          <span>Size:</span>
+          <span>${formatBytes(chunkData.bytes)}</span>
+        </div>
+        <div class="tooltip-row">
+          <span>% of Build:</span>
+          <span>${calculatePercentage(chunkData.bytes, totalBytes)}%</span>
+        </div>
+        <div class="tooltip-row">
+          <span>Files:</span>
+          <span>${files}</span>
+        </div>
+        <div class="tooltip-row">
+          <span>Import Type:</span>
+          <span>${!node.eager ? 'Lazy' : 'Eager'}</span>
+        </div>
+        <div class="tooltip-row">
+          <span>Exports:</span>
+          <span>${chunkData.exports?.length || 0}</span>
+        </div>
+        <div class="tooltip-row">
+          <span>Imports:</span>
+          <span>${chunkData.imports?.length || 0}</span>
+        </div>
+      `;
+
+		positionTooltip(e);
+		tooltip.classList.remove('hidden');
+	}
+
 	// Event Listeners
 	document.querySelectorAll('.toggle-btn').forEach((btn) => {
 		btn.addEventListener('click', () => {
@@ -326,11 +508,15 @@
 
 			document.getElementById('grid-view').classList.toggle('hidden', view !== 'grid');
 			document.getElementById('stats-view').classList.toggle('hidden', view !== 'stats');
+			document.getElementById('graph-view').classList.toggle('hidden', view !== 'graph');
 			document.getElementById('grid-controls').classList.toggle('hidden', view !== 'grid');
 			document.getElementById('stats-controls').classList.toggle('hidden', view !== 'stats');
+			document.getElementById('graph-controls').classList.toggle('hidden', view !== 'graph');
 
 			if (view === 'stats') {
 				renderStatsView();
+			} else if (view === 'graph') {
+				renderGraphView();
 			}
 		});
 	});
@@ -347,15 +533,27 @@
 		renderStatsView();
 	});
 
+	document.getElementById('graph-entrypoint-select').addEventListener('change', (e) => {
+		currentGraphEntrypoint = parseInt(e.target.value);
+		renderGraphView();
+	});
+
 	// Initialize
 	function init() {
-		// Populate entrypoint selector
+		// Populate entrypoint selectors
 		const select = document.getElementById('entrypoint-select');
+		const graphSelect = document.getElementById('graph-entrypoint-select');
+
 		chunkLayers.forEach((layer, index) => {
 			const option = document.createElement('option');
 			option.value = layer.path;
 			option.textContent = layer.path.split('/').pop();
 			select.appendChild(option);
+
+			const graphOption = document.createElement('option');
+			graphOption.value = index;
+			graphOption.textContent = layer.path.split('/').pop();
+			graphSelect.appendChild(graphOption);
 		});
 
 		renderGridView();
