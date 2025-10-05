@@ -62,7 +62,7 @@ body {
 	border-right: 1px solid #dee2e6;
 	background-color: #f8f9fa;
 }
-.visualization-panel {
+main > section {
 	flex-grow: 1;
 	padding: 1rem;
 	overflow: auto;

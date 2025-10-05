@@ -1,6 +1,9 @@
 import css from '../components/styles.css';
 import header from '../components/header.html';
 import viewSwitcher from '../components/viewSwitcher.js';
+import statisticsSection from '../components/statisticSection.html';
+import splittingSection from '../components/splittingSection.html';
+import importingSection from '../components/importingSection.html';
 import type { Metafile, ChunkLayer } from '../types/index';
 
 export function generateReport(
@@ -26,10 +29,9 @@ export function generateReport(
       <h2>Filters & Options</h2>
       <!-- Sidebar content will go here -->
     </aside>
-    <section class="visualization-panel">
-      <h1>Project Splitting Overview</h1>
-      <!-- Main content will go here -->
-    </section>
+    ${splittingSection}
+    ${importingSection}
+    ${statisticsSection}
   </main>
 </body>
 <script>${viewSwitcher}</script>
