@@ -45,4 +45,10 @@ export default [
 			semi: 'warn',
 		},
 	},
+	{
+		files: ['**/*.d.ts'],
+		rules: {
+			'no-unused-vars': 'off',
+		},
+	},
 ];
