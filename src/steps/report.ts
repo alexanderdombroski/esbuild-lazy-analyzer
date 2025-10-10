@@ -1,4 +1,3 @@
-import initChunks from '../components/initChunks.js';
 import lovable from '../components/lovable.html';
 import lovableCss from '../components/lovable.css';
 import lovableJs from '../components/lovable.js';
@@ -24,7 +23,6 @@ export function generateReport(metafile: Metafile, chunkLayers: ChunkLayer[]): s
     ${lovable}
   </div>
 </body>
-<script>${initChunks}</script>
 <script>${lovableJs}</script>
 </html>`;
 }

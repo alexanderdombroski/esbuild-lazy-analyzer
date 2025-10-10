@@ -57,11 +57,11 @@ export function analyzeChunkLayer(
 	);
 
 	return {
-		path: chunkName, // Good
+		path: chunkName,
 		minNewBytes,
 		maxNewBytes,
-		isEntryPoint, // Good
-		eagerImports, // Good
+		isEntryPoint,
+		eagerImports,
 		chunkLayers,
 	};
 }
