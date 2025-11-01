@@ -115,6 +115,8 @@ body {
 	overflow: hidden;
 }
 
+/* ------------ SIDEBAR ------------ */
+
 .sidebar {
 	width: 280px;
 	background: var(--bg-secondary);
@@ -219,11 +221,12 @@ body {
 	display: none !important;
 }
 
-/* Grid View */
+/* ------------ Grid View ------------ */
+
 .chunks-grid {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--spacing-md);
+	gap: var(--spacing-xs);
 	align-content: flex-start;
 }
 
