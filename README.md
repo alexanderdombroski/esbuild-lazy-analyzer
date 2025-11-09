@@ -2,6 +2,8 @@
 
 An esbuild visualizer that anaylizes lazy-loading of chunks
 
+[![GitHub](https://img.shields.io/badge/GitHub-Repo-blue?logo=github)](https://github.com/alexanderdombroski/esbuild-lazy-analyzer) [![Version](https://badge.fury.io/gh/alexanderdombroski%2Fesbuild-lazy-analyzer.svg)](https://badge.fury.io/gh/alexanderdombroski%2Fesbuild-lazy-analyzer)
+
 ## Installing
 
 ```zsh
@@ -19,6 +21,10 @@ npx esbuild-lazy-analyzer --metafile <meta.json> --outmeta <processed.json> --ou
 ```
 
 `--metafile` is required and at least one of the other `--out` options are also required.
+
+## Release Notes
+
+Check out the [changelog](https://github.com/alexanderdombroski/esbuild-lazy-analyzer/blob/main/CHANGELOG.md)
 
 ## License Information
 
