@@ -1,6 +1,6 @@
 # Esbuild Lazy Analyzer
 
-An esbuild visualizer that anaylizes lazy-loading of chunks
+An esbuild visualizer that analyzes lazy-loading of chunks
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repo-blue?logo=github)](https://github.com/alexanderdombroski/esbuild-lazy-analyzer) [![Version](https://badge.fury.io/gh/alexanderdombroski%2Fesbuild-lazy-analyzer.svg)](https://badge.fury.io/gh/alexanderdombroski%2Fesbuild-lazy-analyzer)
 
