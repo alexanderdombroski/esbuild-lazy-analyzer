@@ -1,5 +1,5 @@
 import { analyzeMetadata } from './steps/analyze';
-import { generateReport } from './steps/report';
+// import { generateReport } from './steps/report';
 import { getArg, readMetaFile } from './utils/cli';
 import fs from 'node:fs/promises';
 
@@ -17,9 +17,14 @@ async function main() {
 		console.error('Error: either --outreport and/or --outmeta argument is required.');
 		process.exit(1);
 	}
-	
+
 	const metadata = await readMetaFile(metafile);
 	const stats = analyzeMetadata(metadata);
+
+	if (outmeta) {
+		await fs.writeFile(outmeta, JSON.stringify(stats, undefined, 2));
+		console.log(`Stats generated at ${outmeta}`);
+	}
 
 	// const chunkLayerData = analyzeMetadata(metadata);
 
