@@ -35,6 +35,19 @@ export type Metafile = {
 	};
 };
 
+/** The shared properties of inputs and outputs */
+export type MetafilePart = {
+	// Source: https://esbuild.github.io/api/#metafile
+	[path: string]: {
+		bytes: number;
+		imports: {
+			path: string;
+			kind: ImportKind;
+			external?: boolean;
+		}[];
+	};
+};
+
 export type ImportKind =
 	| 'import-statement'
 	| 'require-call'
@@ -69,4 +82,19 @@ export type EagerChunkAnalysis = {
 	maxBytes: number;
 	eagerImports: string[];
 	lazyImports: string[];
+};
+
+export type Stats = {
+	numberOfChunks: number;
+	preBundleSize: number;
+	bundleSize: number;
+	compressionPercentage: number;
+	minChunkSize: number;
+	maxChunkSize: number;
+	averageChunkSize: number;
+	eagerImportSize: number;
+	eagerImports: string[];
+	lazyImports: string[];
+	longestDependencyChainDepth: number;
+	leafCount: number;
 };

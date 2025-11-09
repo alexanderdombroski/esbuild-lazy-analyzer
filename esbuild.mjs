@@ -40,10 +40,7 @@ async function main() {
 		splitting: true,
 		external: [...(await import('node:module')).builtinModules],
 		logLevel: 'silent',
-		plugins: [
-			/* add to the end of plugins array */
-			esbuildProblemMatcherPlugin,
-		],
+		plugins: [esbuildProblemMatcherPlugin],
 		minifySyntax: true,
 		chunkNames: 'chunks/[name]-[hash]',
 		metafile: true,

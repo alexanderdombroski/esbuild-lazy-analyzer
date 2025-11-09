@@ -7,11 +7,11 @@
     "esbuild-lazy-analyzer": "dist/main.js"
   },
   "scripts": {
-    "start": "npm run package && node dist/main.js --metafile ./profile/meta-example.json --filename ./profile/lazy-analyzer.html && open ./profile/lazy-analyzer.html",
-    "dev": "concurrently \"npm run build\" \"nodemon dist/main.js --metafile ./profile/meta-example.json --filename ./profile/lazy-analyzer.html\" \"open ./profile/lazy-analyzer.html\"",
+    "start": "npm run package && node dist/main.js --metafile ./profile/meta-example.json --outreport ./profile/lazy-analyzer.html && open ./profile/lazy-analyzer.html",
+    "dev": "concurrently \"npm run build\" \"nodemon --enable-source-maps dist/main.js --metafile ./profile/meta-example.json --outreport ./profile/lazy-analyzer.html\" \"open ./profile/lazy-analyzer.html\"",
     "build": "node esbuild.mjs --watch",
     "package": "rm -rf dist && node esbuild.mjs --production",
-    "profile": "esbuild-visualizer --metadata ./profile/meta.json --filename ./profile/visualizer.html && open ./profile/visualizer.html",
+    "profile": "node esbuild.mjs && esbuild-visualizer --metadata ./profile/meta.json --filename ./profile/visualizer.html && open ./profile/visualizer.html",
     "prepare": "husky"
   },
   "keywords": [],

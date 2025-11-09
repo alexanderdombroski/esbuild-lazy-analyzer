@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises';
+import type { Metafile } from '../types';
+
 /** Return an argument from the CLI, supporting both `--arg=value` and `--arg value` */
 export const getArg = (argName: string): string | undefined => {
 	const argv = process.argv;
@@ -18,3 +21,8 @@ export const getArg = (argName: string): string | undefined => {
 
 	return undefined;
 };
+
+export async function readMetaFile(fp: string): Promise<Metafile> {
+	const fileContent = await fs.readFile(fp, 'utf-8');
+	return JSON.parse(fileContent);
+}

@@ -1,18 +1,18 @@
-import fs from 'node:fs/promises';
-import type { ChunkLayer, EagerChunkAnalysis, Metafile } from '../types/index';
+import type { ChunkLayer, EagerChunkAnalysis, Metafile, MetafilePart, Stats } from '../types/index';
 
-export async function readMetaFile(fp: string): Promise<Metafile> {
-	const fileContent = await fs.readFile(fp, 'utf-8');
-	return JSON.parse(fileContent);
+export function analyzeMetadata(metadata: Metafile): Stats[] {
+	const entryPoints = findEntryPoints(metadata.outputs);
+	return entryPoints.map((entry) => analyzeEntryPoint(metadata.outputs, entry));
 }
 
 /** Finds the entrypoint chunks */
-export function findEntryPoints(metadata: Metafile): string[] {
+export function findEntryPoints(metadata: MetafilePart): string[] {
+	// Entry points can import other files, but are never imported.
 	const importedFiles = new Set<string>();
-	const paths = Object.keys(metadata.outputs);
+	const paths = Object.keys(metadata);
 
 	paths.forEach((path) => {
-		metadata.outputs[path].imports.forEach((imp) => {
+		metadata[path].imports.forEach((imp) => {
 			!imp.external && importedFiles.add(imp.path);
 		});
 	});
@@ -20,16 +20,43 @@ export function findEntryPoints(metadata: Metafile): string[] {
 	return paths.filter((path) => !importedFiles.has(path));
 }
 
-export function analyzeMetadata(metadata: Metafile): ChunkLayer[] {
-	const entryPoints = findEntryPoints(metadata);
-	const chunkLayers = new Array<ChunkLayer>(entryPoints.length);
+export function analyzeEntryPoint(metadata: MetafilePart, file: string): Stats {
+	const stats: Partial<Stats> = {};
 
-	entryPoints.forEach((entry, i) => {
-		const alreadyImported = new Set<string>();
-		chunkLayers[i] = analyzeChunkLayer(metadata, entry, alreadyImported, true);
-	});
+	[stats.eagerImports, stats.lazyImports] = categorizeImports(metadata, file);
 
-	return chunkLayers;
+	return stats as Stats;
+}
+
+/** Recursively finds [eager, lazy] imports */
+function categorizeImports(metadata: MetafilePart, file: string): [string[], string[]] {
+	const eagerImports = new Set<string>();
+	
+	findEagerImports(metadata, file, eagerImports);
+
+	const lazyImports: string[] = Object.keys(metadata).filter((file) => !eagerImports.has(file));
+
+	return [
+		Array.from(eagerImports),
+		lazyImports,
+	];
+}
+
+export function findEagerImports(
+	metadata: MetafilePart,
+	file: string,
+	eagerImports: Set<string>,
+) {
+	eagerImports.add(file);
+
+	metadata[file].imports
+		.filter(
+			({ external, kind, path: fp }) =>
+				!eagerImports.has(fp) && !external && kind !== 'dynamic-import'
+		)
+		.forEach(({ path: fp }) => {
+			findEagerImports(metadata, fp, eagerImports);
+		});
 }
 
 export function analyzeChunkLayer(
