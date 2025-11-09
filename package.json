@@ -1,6 +1,6 @@
 {
 	"name": "esbuild-lazy-analyzer",
-	"version": "0.2.0",
+	"version": "1.0.0",
 	"description": "An esbuild visualizer that anaylizes lazy-loading of chunks",
 	"main": "dist/main.js",
 	"bin": {
