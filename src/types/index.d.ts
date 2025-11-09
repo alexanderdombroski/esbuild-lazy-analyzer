@@ -61,28 +61,6 @@ export type ImportKind =
 	| 'data-url'
 	| 'json-import';
 
-export type ChunkLayer = {
-	/** Entry chunk */
-	path: string;
-	/** The minimum number of bytes that will be loaded when importing the chunk */
-	minNewBytes: number;
-	/** The maximum number of bytes that could be loaded when importing the chunk */
-	maxNewBytes: number;
-	/** Chunks guarenteed to be loaded in this layer. */
-	eagerImports: string[];
-	/** An array of paths */
-	chunkLayers: ChunkLayer[];
-	/** is loaded on entrypoint */
-	isEntryPoint: boolean;
-};
-
-export type EagerChunkAnalysis = {
-	minBytes: number;
-	maxBytes: number;
-	eagerImports: string[];
-	lazyImports: string[];
-};
-
 export type BundleStats = {
 	numberOfChunks: number;
 	preBundleSize: number;

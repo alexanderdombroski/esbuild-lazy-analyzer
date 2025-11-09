@@ -1,5 +1,5 @@
 import { analyzeMetadata } from './steps/analyze';
-// import { generateReport } from './steps/report';
+import { generateReport } from './steps/report';
 import { getArg, readMetaFile } from './utils/cli';
 import fs from 'node:fs/promises';
 
@@ -26,13 +26,11 @@ async function main() {
 		console.log(`Stats generated at ${outmeta}`);
 	}
 
-	// const chunkLayerData = analyzeMetadata(metadata);
-
-	// if (outreport) {
-	// 	const reportHtml = generateReport(metadata, chunkLayerData);
-	// 	await fs.writeFile(outreport, reportHtml);
-	// 	console.log(`Report generated at ${outreport}`);
-	// }
+	if (outreport) {
+		const reportHtml = generateReport(metadata, stats);
+		await fs.writeFile(outreport, reportHtml);
+		console.log(`Report generated at ${outreport}`);
+	}
 }
 
 main().catch((e) => {

@@ -1,66 +1,135 @@
-<!-- Header -->
-<header class="header">
-	<h1>ESBuild Metafile Analyzer</h1>
-	<div class="view-toggle">
-		<button class="toggle-btn active" data-view="grid">Grid View</button>
-		<button class="toggle-btn" data-view="stats">Statistics</button>
-		<button class="toggle-btn" data-view="graph">Graph View</button>
+<!-- Navigation -->
+<nav class="nav">
+	<div class="container">
+		<div class="nav-content">
+			<div class="nav-brand">
+				<div class="nav-icon">
+					<svg
+						width="20"
+						height="20"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path d="M3 3v18h18" />
+						<path d="M18 17V9" />
+						<path d="M13 17V5" />
+						<path d="M8 17v-3" />
+					</svg>
+				</div>
+				<h1>Bundle Analyzer</h1>
+			</div>
+
+			<div class="nav-links">
+				<button class="nav-link active" data-page="stats">Stats</button>
+				<button class="nav-link" data-page="graph">
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<circle cx="12" cy="12" r="2" />
+						<path d="M16 8V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3" />
+						<path d="M8 16v3a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-3" />
+					</svg>
+					Graph
+				</button>
+			</div>
+		</div>
 	</div>
-</header>
+</nav>
 
-<!-- Main Content -->
-<main class="main-content">
-	<!-- Sidebar -->
-	<aside class="sidebar">
-		<div class="sidebar-section" id="grid-controls">
-			<h3>Sort Chunks</h3>
-			<div class="radio-group">
-				<label class="radio-label">
-					<input type="radio" name="sort" value="size" checked />
-					<span>By Size</span>
-				</label>
-				<label class="radio-label">
-					<input type="radio" name="sort" value="name" />
-					<span>By Name</span>
-				</label>
+<!-- Stats Page -->
+<div id="stats-page" class="page active">
+	<div class="container">
+		<div class="page-header">
+			<h2>Bundle Statistics</h2>
+			<p>Overview of your bundle's performance and composition</p>
+		</div>
+
+		<div class="stats-grid" id="stats-cards"></div>
+
+		<div class="charts-grid">
+			<div class="card">
+				<h3>Eager vs Lazy Imports</h3>
+				<canvas id="pieChart"></canvas>
+			</div>
+
+			<div class="card">
+				<h3>Top 10 Chunks by Size</h3>
+				<canvas id="barChart"></canvas>
 			</div>
 		</div>
 
-		<div class="sidebar-section hidden" id="stats-controls">
-			<h3>Entrypoint</h3>
-			<select id="entrypoint-select" class="select-input">
-				<option value="all">All Entrypoints</option>
-			</select>
+		<div class="card">
+			<h3>Entry Points Breakdown</h3>
+			<canvas id="entryChart"></canvas>
 		</div>
+	</div>
+</div>
 
-		<div class="sidebar-section hidden" id="graph-controls">
-			<h3>Entrypoint</h3>
-			<select id="graph-entrypoint-select" class="select-input"></select>
-		</div>
-	</aside>
+<!-- Graph Page -->
+<div id="graph-page" class="page">
+	<div class="container">
+		<div class="page-header-with-controls">
+			<div>
+				<h2>Import Graph</h2>
+				<p>Interactive visualization of import relationships</p>
+			</div>
 
-	<!-- Content Area -->
-	<section class="content-area">
-		<!-- Grid View -->
-		<div class="view-container" id="grid-view">
-			<div class="chunks-grid" id="chunks-grid"></div>
-		</div>
-
-		<!-- Statistics View -->
-		<div class="view-container hidden" id="stats-view">
-			<div class="stats-cards" id="stats-cards"></div>
-			<div class="chart-container">
-				<h2>Top 10 Largest Chunks</h2>
-				<div class="bar-chart" id="bar-chart"></div>
+			<div class="button-group">
+				<button class="btn btn-primary active" data-mode="files">
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+						<polyline points="14 2 14 8 20 8" />
+					</svg>
+					Files
+				</button>
+				<button class="btn btn-outline" data-mode="chunks">
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<path
+							d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+						/>
+					</svg>
+					Chunks
+				</button>
 			</div>
 		</div>
 
-		<!-- Graph View -->
-		<div class="view-container hidden" id="graph-view">
-			<svg id="graph-svg" width="100%" height="100%"></svg>
+		<div class="card legend-card">
+			<div class="legend">
+				<div class="legend-item">
+					<div class="legend-dot eager"></div>
+					<span>Eager Imports</span>
+				</div>
+				<div class="legend-item">
+					<div class="legend-dot lazy"></div>
+					<span>Lazy Imports</span>
+				</div>
+				<div class="legend-hint">Drag nodes • Scroll to zoom • Hover for details</div>
+			</div>
 		</div>
-	</section>
-</main>
 
-<!-- Tooltip -->
-<div class="tooltip hidden" id="tooltip"></div>
+		<div class="card graph-card">
+			<svg id="graph-svg"></svg>
+		</div>
+	</div>
+</div>
