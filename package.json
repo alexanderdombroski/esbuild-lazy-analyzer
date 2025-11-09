@@ -1,37 +1,40 @@
 {
-  "name": "esbuild-lazy-analyzer",
-  "version": "1.0.0",
-  "description": "An esbuild visualizer that anaylizes lazy-loading of chunks",
-  "main": "dist/main.js",
-  "bin": {
-    "esbuild-lazy-analyzer": "dist/main.js"
-  },
-  "scripts": {
-    "start": "npm run package && node dist/main.js --metafile ./profile/meta-example.json --outreport ./profile/lazy-analyzer.html && open ./profile/lazy-analyzer.html",
-    "dev": "concurrently \"npm run build\" \"nodemon --watch src --enable-source-maps dist/main.js --metafile ./profile/meta-example.json --outmeta ./profile/lazy-analyzer.json --outreport ./profile/lazy-analyzer.html\" \"open ./profile/lazy-analyzer.html\"",
-    "build": "node esbuild.mjs --watch",
-    "package": "rm -rf dist && node esbuild.mjs --production",
-    "profile": "node esbuild.mjs && esbuild-visualizer --metadata ./profile/meta.json --filename ./profile/visualizer.html && open ./profile/visualizer.html",
-    "prepare": "husky"
-  },
-  "keywords": [],
-  "author": "Alex Dombroski",
-  "license": "MIT",
-  "type": "module",
-  "devDependencies": {
-    "@types/d3": "^7.4.3",
-    "@types/node": "^24.10.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.3",
-    "@typescript-eslint/parser": "^8.46.3",
-    "chart.js": "^4.5.1",
-    "concurrently": "^9.2.1",
-    "esbuild": "^0.25.12",
-    "esbuild-visualizer": "^0.7.0",
-    "eslint": "^9.39.1",
-    "eslint-plugin-import": "^2.32.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.6",
-    "nodemon": "^3.1.10",
-    "prettier": "^3.6.2"
-  }
+	"name": "esbuild-lazy-analyzer",
+	"version": "0.2.0",
+	"description": "An esbuild visualizer that anaylizes lazy-loading of chunks",
+	"main": "dist/main.js",
+	"bin": {
+		"esbuild-lazy-analyzer": "dist/main.js"
+	},
+	"files": [
+		"dist/"
+	],
+	"scripts": {
+		"start": "npm run package && node dist/main.js --metafile ./profile/meta.json --outreport ./profile/lazy-analyzer.html && open ./profile/lazy-analyzer.html",
+		"dev": "concurrently \"npm run build\" \"nodemon --watch src --enable-source-maps dist/main.js --metafile ./profile/meta.json --outmeta ./profile/lazy-analyzer.json --outreport ./profile/lazy-analyzer.html\" \"open ./profile/lazy-analyzer.html\"",
+		"build": "node esbuild.mjs --watch",
+		"package": "rm -rf dist && node esbuild.mjs --production",
+		"profile": "node esbuild.mjs && esbuild-visualizer --metadata ./profile/meta.json --filename ./profile/visualizer.html && open ./profile/visualizer.html",
+		"prepare": "husky"
+	},
+	"keywords": [],
+	"author": "Alex Dombroski",
+	"license": "MIT",
+	"type": "module",
+	"devDependencies": {
+		"@types/d3": "^7.4.3",
+		"@types/node": "^24.10.0",
+		"@typescript-eslint/eslint-plugin": "^8.46.3",
+		"@typescript-eslint/parser": "^8.46.3",
+		"chart.js": "^4.5.1",
+		"concurrently": "^9.2.1",
+		"esbuild": "^0.25.12",
+		"esbuild-visualizer": "^0.7.0",
+		"eslint": "^9.39.1",
+		"eslint-plugin-import": "^2.32.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.2.6",
+		"nodemon": "^3.1.10",
+		"prettier": "^3.6.2"
+	}
 }

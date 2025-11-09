@@ -1,0 +1,78 @@
+name: Publish NPM Package
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Bundle Package
+        run: npm run package
+
+      - name: Log Publish Plan
+        run: npm pack --dry-run
+
+      - name: Publish to npm
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Delete tag on publish prep failure
+        if: failure()
+        run: |
+          TAG_REF=${GITHUB_REF#refs/tags/}
+          git push origin :refs/tags/$TAG_REF --no-verify
+          echo "Deployment failed. Deleted tag $TAG_REF"
+
+      # - name: Create GitHub Release
+      #   id: create_release
+      #   run: |
+      #     curl -s https://raw.githubusercontent.com/alexanderdombroski/esbuild-lazy-analyzer/main/CHANGELOG.md -o CHANGELOG.md  
+      #     if [ $? -ne 0 ]; then
+      #       echo "Failed to download CHANGELOG.md"
+      #       exit 1
+      #     fi
+
+      #     # Use awk to extract the relevant section
+      #     awk -v tag="${{ github.ref_name }}" '
+      #       BEGIN { found=0; }
+      #       /^## \['"${{ github.ref_name }}"'\]/ { found=1; next; }
+      #       /^## \[/ { if (found==1) found=2; }
+      #       { if (found==1) print; }
+      #     ' CHANGELOG.md > release_notes.txt
+
+      #     TREE_LINK="[Tree](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }})"
+      #     COMMIT_LINK="[Commits](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }})"
+      #     COMPARE_LINK="[Compare](https://github.com/${{ github.repository }}/compare/$(git describe --tags --abbrev=0 ${{ github.ref_name }}~1)...${{ github.ref_name }})"
+
+      #     CHANGELOG="See the full [changelog](https://github.com/alexanderdombroski/esbuild-lazy-analyzer/blob/main/CHANGELOG.md)."
+      #     RELEASE_BODY=$(printf "%s\n\n%s\n\n## GitHub Links\n\n%s - %s - %s" "$(cat release_notes.txt)" "$CHANGELOG" "$TREE_LINK" "$COMMIT_LINK" "$COMPARE_LINK")
+
+      #     gh release create ${{ github.ref_name }} \
+      #       --title "Release ${{ github.ref_name }}" \
+      #       --notes "$RELEASE_BODY"
+
+      #     echo "RELEASE_ID=${{ github.ref_name }}" >> $GITHUB_ENV
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
