@@ -39,6 +39,7 @@ function initStats() {
 	}
 
 	renderStatCards();
+	setupPieChart();
 	renderPieChart();
 	renderBarChart();
 	renderEntryChart();
@@ -62,25 +63,25 @@ function renderStatCards() {
 		{
 			title: 'Avg Chunk Size',
 			value: formatBytes(stats.averageChunkSize),
-			icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.89 1.45l8 4A2 2 0 0 1 22 7.24v9.53a2 2 0 0 1-1.11 1.79l-8 4a2 2 0 0 1-1.79 0l-8-4a2 2 0 0 1-1.1-1.8V7.24a2 2 0 0 1 1.11-1.79l8-4a2 2 0 0 1 1.78 0z"/></svg>',
-		},
-		{
-			title: 'Min Chunk',
-			value: formatBytes(stats.minChunk.size),
 			icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
-			trend: stats.minChunk.name.split('/').pop() || stats.minChunk.name,
-		},
-		{
-			title: 'Max Chunk',
-			value: formatBytes(stats.maxChunk.size),
-			icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
-			trend: stats.maxChunk.name.split('/').pop() || stats.maxChunk.name,
 		},
 		{
 			title: 'Entry Points / Entry Files',
 			value: Object.keys(stats.entryStats).length,
 			icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
 		},
+		...Object.entries(stats.entryStats)
+			.filter(([, { type }]) => type === 'outputs')
+			.map(([name, { eagerImportSize }]) => {
+				const percent = (eagerImportSize / stats.bundleSize) * 100;
+				return {
+					title: `Eager import Size: ${name}`,
+					value: formatBytes(eagerImportSize),
+					icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+					trend: `${percent.toFixed(1)}% eagerly imported`,
+					trendType: percent > 60 ? 'warning' : 'success',
+				};
+			}),
 	];
 
 	const container = /** @type {HTMLElement} */ (document.getElementById('stats-cards'));
@@ -102,15 +103,28 @@ function renderStatCards() {
 		.join('');
 }
 
-function renderPieChart() {
-	const stats = bundleStats;
-	let totalEager = 0;
-	let totalLazy = 0;
+let selectedEntryPoint;
 
-	Object.values(stats.entryStats).forEach((entry) => {
-		totalEager += entry.eagerImports.length;
-		totalLazy += entry.lazyImports.length;
-	});
+function setupPieChart() {
+	const entryPoints = Object.entries(bundleStats.entryStats)
+		.filter(([, { type }]) => type === 'outputs')
+		.map(([entry]) => entry);
+	const dropdown = /** @type {HTMLSelectElement} */ (document.getElementById('pie-dropdown'));
+	dropdown.innerHTML = entryPoints.map((file) => `<option>${file}</option>`).join('');
+	if (entryPoints.length > 1) {
+		dropdown.addEventListener('change', () => {
+			selectedEntryPoint = dropdown.value;
+			renderPieChart();
+		});
+	} else {
+		dropdown.hidden = true;
+	}
+	selectedEntryPoint = dropdown.value;
+}
+
+function renderPieChart() {
+	const totalEager = bundleStats.entryStats[selectedEntryPoint].eagerImportSize;
+	const totalLazy = bundleStats.bundleSize - totalEager;
 
 	const ctx = /** @type {import("chart.js").ChartItem} */ (document.getElementById('pieChart'));
 	new Chart(ctx, {

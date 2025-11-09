@@ -16,12 +16,12 @@ export function analyzeMetadata(metadata: Metafile): BundleStats {
 	const entryPoints = findEntryPoints(metadata.outputs);
 	const entryPointStats: EntryStatsKVP[] = entryPoints.map((entry) => [
 		entry,
-		analyzeEntryPoint(metadata.outputs, entry),
+		analyzeEntryPoint(metadata.outputs, entry, 'outputs'),
 	]);
 	const entryFiles = findEntryPoints(metadata.inputs);
 	const entryFileStats: EntryStatsKVP[] = entryFiles.map((entry) => [
 		entry,
-		analyzeEntryPoint(metadata.inputs, entry),
+		analyzeEntryPoint(metadata.inputs, entry, 'inputs'),
 	]);
 	stats.entryStats = Object.fromEntries([...entryFileStats, ...entryPointStats]);
 
@@ -45,7 +45,7 @@ export function analyzeMetadata(metadata: Metafile): BundleStats {
 }
 
 /** Finds the entrypoint chunks */
-export function findEntryPoints(metadata: MetafilePart): string[] {
+function findEntryPoints(metadata: MetafilePart): string[] {
 	// Entry points can import other files, but are never imported.
 	const importedFiles = new Set<string>();
 	const paths = Object.keys(metadata);
@@ -59,8 +59,12 @@ export function findEntryPoints(metadata: MetafilePart): string[] {
 	return paths.filter((path) => !importedFiles.has(path));
 }
 
-export function analyzeEntryPoint(metadata: MetafilePart, file: string): EntryStats {
-	const stats: Partial<EntryStats> = {};
+function analyzeEntryPoint(
+	metadata: MetafilePart,
+	file: string,
+	type: 'inputs' | 'outputs'
+): EntryStats {
+	const stats: Partial<EntryStats> = { type };
 
 	[stats.eagerImports, stats.lazyImports] = categorizeImports(metadata, file);
 	stats.longestDependencyChain = findLongestImportChain(metadata, file);

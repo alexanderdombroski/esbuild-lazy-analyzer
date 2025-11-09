@@ -6,7 +6,7 @@ import type { Metafile, BundleStats } from '../types/index';
 
 export function generateReport(metafile: Metafile, bundleStats: BundleStats): string {
 	return `
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">

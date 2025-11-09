@@ -83,6 +83,7 @@ export type BundleStats = {
 };
 
 export type EntryStats = {
+	type: 'inputs' | 'outputs';
 	eagerImports: string[];
 	lazyImports: string[];
 	longestDependencyChain: string[];
