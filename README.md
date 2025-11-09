@@ -8,6 +8,18 @@ An esbuild visualizer that anaylizes lazy-loading of chunks
 npm i -D esbuild-lazy-analyzer
 ```
 
+## Overview
+
+Many bundlers allow you to use "splitting" to separate bundled code. This cli shows you how well you [split using esbuild](https://esbuild.github.io/api/#splitting).
+
+## Usage
+
+```zsh
+npx esbuild-lazy-analyzer --metafile <meta.json> --outmeta <processed.json> --outreport <processed.html>
+```
+
+`--metafile` is required and at least one of the other `--out` options are also required.
+
 ## License Information
 
 Includes an [MIT license](https://github.com/alexanderdombroski/esbuild-lazy-analyzer?tab=MIT-1-ov-file#readme)
