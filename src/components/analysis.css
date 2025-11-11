@@ -17,6 +17,7 @@
 	--primary: hsl(188, 95%, 52%);
 	--primary-hover: hsl(188, 95%, 45%);
 
+	--info: hsl(209, 57%, 56%);
 	--success: hsl(142, 76%, 36%);
 	--warning: hsl(38, 92%, 50%);
 
@@ -313,6 +314,11 @@ body {
 	height: 1rem;
 	border-radius: 50%;
 	border: 2px solid;
+}
+
+.legend-dot.entry {
+	background: var(--info);
+	border-color: var(--info);
 }
 
 .legend-dot.eager {

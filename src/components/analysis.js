@@ -326,30 +326,15 @@ function initGraph(mode) {
 		entry.eagerImports.forEach((imp) => allEagerImports.add(imp));
 		entry.lazyImports.forEach((imp) => allLazyImports.add(imp));
 	});
-	if (mode === 'files') {
-		Object.entries(metafile.inputs).forEach(([path, input]) => {
-			const isLazy = allLazyImports.has(path);
-			nodes.push({
-				id: path,
-				group: isLazy ? 'lazy' : 'eager',
-				size: input.bytes,
-			});
 
-			input.imports.forEach((imp) => {
-				if (!imp.external) {
-					links.push({
-						source: path,
-						target: imp.path,
-					});
-				}
-			});
-		});
-	} else {
-		Object.entries(metafile.outputs).forEach(([path, output]) => {
+	const createNodes = /** @param {import("../types").MetafilePart} meta */ (meta) => {
+		const entryPoints = Object.keys(bundleStats.entryStats);
+		Object.entries(meta).forEach(([path, output]) => {
+			const isEntry = entryPoints.includes(path);
 			const isLazy = !allEagerImports.has(path);
 			nodes.push({
 				id: path,
-				group: isLazy ? 'lazy' : 'eager',
+				group: isEntry ? 'entry' : isLazy ? 'lazy' : 'eager',
 				size: output.bytes,
 			});
 
@@ -362,6 +347,12 @@ function initGraph(mode) {
 				}
 			});
 		});
+	};
+
+	if (mode === 'files') {
+		createNodes(metafile.inputs);
+	} else {
+		createNodes(metafile.outputs);
 	}
 
 	const simulation = d3
@@ -399,8 +390,12 @@ function initGraph(mode) {
 		.data(nodes)
 		.join('circle')
 		.attr('r', (d) => Math.max(5, Math.sqrt(d.size) / 20))
-		.attr('fill', (d) => (d.group === 'eager' ? 'hsl(142, 76%, 36%)' : 'hsl(38, 92%, 50%)'))
-		.attr('stroke', (d) => (d.group === 'eager' ? 'hsl(142, 76%, 36%)' : 'hsl(38, 92%, 50%)'))
+		.attr('fill', (d) =>
+			d.group === 'entry' ? 'var(--info)' : d.group === 'eager' ? 'var(--success)' : 'var(--warning'
+		)
+		.attr('stroke', (d) =>
+			d.group === 'entry' ? 'var(--info)' : d.group === 'eager' ? 'var(--success)' : 'var(--warning'
+		)
 		.attr('stroke-width', 2)
 		.style('cursor', 'pointer')
 		// @ts-ignore
