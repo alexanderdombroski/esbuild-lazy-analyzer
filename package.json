@@ -1,6 +1,6 @@
 {
 	"name": "esbuild-lazy-analyzer",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "An esbuild visualizer that anaylizes lazy-loading of chunks",
 	"main": "dist/main.js",
 	"bin": {
@@ -22,7 +22,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/alexanderdombroski/esbuild-lazy-analyzer.git"
+		"url": "git+https://github.com/alexanderdombroski/esbuild-lazy-analyzer.git"
 	},
 	"type": "module",
 	"devDependencies": {

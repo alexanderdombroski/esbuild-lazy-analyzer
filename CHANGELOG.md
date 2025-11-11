@@ -4,7 +4,17 @@
 
 ## Table of Contents
 
-- [1.0](#100---2025-11-09) - Initial Release
+- [1.0](#101---2025-11-11) - Initial Release
+
+## [1.0.1] - 2025-11-11
+
+### Added
+
+- Entry points appear blue on import graph
+
+### Fixed
+
+- d3 chart errors
 
 ## [1.0.0] - 2025-11-09
 
