@@ -122,12 +122,15 @@ function setupPieChart() {
 	selectedEntryPoint = dropdown.value;
 }
 
+let pieChart;
+
 function renderPieChart() {
 	const totalEager = bundleStats.entryStats[selectedEntryPoint].eagerImportSize;
 	const totalLazy = bundleStats.bundleSize - totalEager;
 
 	const ctx = /** @type {import("chart.js").ChartItem} */ (document.getElementById('pieChart'));
-	new Chart(ctx, {
+	pieChart?.destroy();
+	pieChart = new Chart(ctx, {
 		type: 'pie',
 		data: {
 			labels: ['Eager', 'Lazy'],
@@ -153,6 +156,8 @@ function renderPieChart() {
 	});
 }
 
+let barChart;
+
 function renderBarChart() {
 	const chunkData = Object.entries(metafile.outputs)
 		.map(([name, output]) => ({
@@ -163,7 +168,8 @@ function renderBarChart() {
 		.slice(0, 10);
 
 	const ctx = /** @type {import("chart.js").ChartItem} */ (document.getElementById('barChart'));
-	new Chart(ctx, {
+	barChart?.destroy();
+	barChart = new Chart(ctx, {
 		type: 'bar',
 		data: {
 			labels: chunkData.map((d) => d.name),
@@ -218,6 +224,8 @@ function renderBarChart() {
 	});
 }
 
+let entryBarChart;
+
 function renderEntryChart() {
 	const stats = bundleStats;
 	const entryData = Object.entries(stats.entryStats).map(([name, entry]) => ({
@@ -227,7 +235,8 @@ function renderEntryChart() {
 	}));
 
 	const ctx = /** @type {import("chart.js").ChartItem} */ (document.getElementById('entryChart'));
-	new Chart(ctx, {
+	entryBarChart?.destroy();
+	entryBarChart = new Chart(ctx, {
 		type: 'bar',
 		data: {
 			labels: entryData.map((d) => d.name),
