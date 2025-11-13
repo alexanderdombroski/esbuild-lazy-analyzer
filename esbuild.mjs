@@ -24,6 +24,31 @@ const esbuildProblemMatcherPlugin = {
 	},
 };
 
+/**
+ * @type {import('esbuild').Plugin}
+ */
+const minifyCSSTextPlugin = {
+    name: 'minify-css-text',
+    setup(build) {
+        build.onLoad({ filter: /\.css$/ }, async (args) => {
+            const css = await fs.readFile(args.path, 'utf8');
+            // Simple CSS minification
+            const minified = production 
+                ? css
+                    .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
+                    .replace(/\s+/g, ' ') // Collapse whitespace
+                    .replace(/\s*([{}:;,])\s*/g, '$1') // Remove space around special chars
+                    .replace(/;}/g, '}') // Remove last semicolon in block
+                    .trim()
+                : css;
+            return {
+                contents: minified,
+                loader: 'text',
+            };
+        });
+    },
+};
+
 async function main() {
 	const ctx = await context({
 		entryPoints: ['src/main.ts'],
@@ -40,7 +65,7 @@ async function main() {
 		splitting: true,
 		external: [...(await import('node:module')).builtinModules],
 		logLevel: 'silent',
-		plugins: [esbuildProblemMatcherPlugin],
+		plugins: [esbuildProblemMatcherPlugin, minifyCSSTextPlugin],
 		minifySyntax: true,
 		chunkNames: 'chunks/[name]-[hash]',
 		metafile: true,
