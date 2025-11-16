@@ -1,5 +1,5 @@
-name: Bug Report With JSON
-description: Report an issue and attach a JSON file
+name: Bug Report
+description: Recommended template for a detailed bug report
 title: "[Bug]: "
 labels: ["bug"]
 body:
@@ -16,9 +16,9 @@ body:
       description: Attach a link to your esbuild setup for context
       placeholder: https://github.com/<user>/<repo>
 
-  - type: upload
+  - type: textarea
     id: json_file
     attributes:
-      label: Upload JSON metafile
-      description: Attach the JSON file exported from your esbuild.
-      fileType: [json]
+      label: JSON esbuild metafile upload
+      description: Drag your .json file here and GitHub will attach it.
+      render: markdown
