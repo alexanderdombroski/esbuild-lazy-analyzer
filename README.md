@@ -34,7 +34,7 @@ type BundleStats = {
   compressionPercentage: number;
   minChunk: {
     name: string;
-		  size: number;
+    size: number;
   };
   maxChunk: {
     name: string;
