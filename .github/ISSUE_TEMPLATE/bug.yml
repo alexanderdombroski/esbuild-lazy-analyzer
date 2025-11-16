@@ -1,0 +1,24 @@
+name: Bug Report With JSON
+description: Report an issue and attach a JSON file
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the issue
+      placeholder: Description, steps to reproduce, expected behavior, etc.
+
+  - type: input
+    id: repo_link
+    attributes:
+      label: Link to the source code using the tool
+      description: Attach a link to your esbuild setup for context
+      placeholder: https://github.com/<user>/<repo>
+
+  - type: upload
+    id: json_file
+    attributes:
+      label: Upload JSON metafile
+      description: Attach the JSON file exported from your esbuild.
+      fileType: [json]
