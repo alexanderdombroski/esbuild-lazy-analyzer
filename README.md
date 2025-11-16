@@ -28,32 +28,32 @@ A json file to write with the following structure
 
 ```typescript
 type BundleStats = {
-	numberOfChunks: number;
-	preBundleSize: number;
-	bundleSize: number;
-	compressionPercentage: number;
-	minChunk: {
-		name: string;
-		size: number;
-	};
-	maxChunk: {
-		name: string;
-		size: number;
-	};
-	averageChunkSize: number;
-	fileLeafs: string[];
-	chunkLeafs: string[];
-	entryStats: {
-		[entryPoint: string]: EntryStats;
-	};
+  numberOfChunks: number;
+  preBundleSize: number;
+  bundleSize: number;
+  compressionPercentage: number;
+  minChunk: {
+    name: string;
+		  size: number;
+  };
+  maxChunk: {
+    name: string;
+    size: number;
+  };
+  averageChunkSize: number;
+  fileLeafs: string[];
+  chunkLeafs: string[];
+  entryStats: {
+    [entryPoint: string]: EntryStats;
+  };
 };
 
 type EntryStats = {
-	type: 'inputs' | 'outputs';
-	eagerImports: string[];
-	lazyImports: string[];
-	longestDependencyChain: string[];
-	eagerImportSize: number;
+  type: 'inputs' | 'outputs';
+  eagerImports: string[];
+  lazyImports: string[];
+  longestDependencyChain: string[];
+  eagerImportSize: number;
 };
 ```
 
