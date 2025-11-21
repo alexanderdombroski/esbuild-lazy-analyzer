@@ -342,6 +342,42 @@ body {
 	color: var(--text-secondary);
 }
 
+.node-list-card {
+	margin-bottom: 1rem;
+	min-height: 2rem;
+	max-height: 20rem;
+	overflow-x: scroll;
+	padding: 1rem;
+}
+
+.node-list-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.node-list-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: rgba(30, 30, 40, 0.15);
+	border-radius: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.95rem;
+	color: var(--text-primary);
+}
+.node-list-item:hover {
+	background: rgba(30, 30, 40, 0.35);
+}
+
+.node-list-checkbox {
+	accent-color: var(--primary);
+	width: 1.1rem;
+	height: 1.1rem;
+	margin-right: 0.25rem;
+}
+
 /* Graph */
 .graph-card {
 	height: calc(100vh - 320px);
@@ -366,6 +402,32 @@ body {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 	z-index: 1000;
 	display: none;
+}
+
+/* Scroll Bar */
+
+/* WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #444;
+	border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #666;
+}
+
+/* Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #444 #1a1a1a;
 }
 
 /* Responsive */

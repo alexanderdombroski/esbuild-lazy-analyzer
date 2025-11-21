@@ -1,3 +1,39 @@
+// Track selected files for graph rendering
+let selectedFiles = new Set();
+
+function renderNodeList(meta) {
+	const grid = document.getElementById('node-list-grid');
+	if (!grid) return;
+	grid.innerHTML = '';
+	const files = Object.keys(meta);
+	// If first load, select all files
+	if (selectedFiles.size === 0) files.forEach((f) => selectedFiles.add(f));
+	files.forEach((file) => {
+		const label = document.createElement('label');
+		label.className = 'node-list-item';
+		const checkbox = document.createElement('input');
+		checkbox.type = 'checkbox';
+		checkbox.checked = selectedFiles.has(file);
+		checkbox.className = 'node-list-checkbox';
+		checkbox.addEventListener('change', () => {
+			if (checkbox.checked) {
+				selectedFiles.add(file);
+			} else {
+				selectedFiles.delete(file);
+			}
+			// Rerender graph after selection change
+			initGraph(currentGraphMode);
+		});
+		label.appendChild(checkbox);
+		const span = document.createElement('span');
+		span.textContent = file.split('/').pop() || file;
+		span.title = file;
+		label.appendChild(span);
+		grid.appendChild(label);
+	});
+}
+
+let currentGraphMode = 'files';
 /** @type {NodeListOf<HTMLLinkElement>} */ (document.querySelectorAll('.nav-link')).forEach(
 	(link) => {
 		link.addEventListener('click', () => {
@@ -308,6 +344,11 @@ document.querySelectorAll('[data-mode]').forEach((btn) => {
 /** @param {string} mode */
 function initGraph(mode) {
 	if (!metafile || !bundleStats) return;
+	currentGraphMode = mode;
+
+	// Render node list grid for selection
+	const meta = mode === 'files' ? metafile.inputs : metafile.outputs;
+	renderNodeList(meta);
 
 	const svg = d3.select('#graph-svg');
 	svg.selectAll('*').remove();
@@ -327,33 +368,26 @@ function initGraph(mode) {
 		entry.lazyImports.forEach((imp) => allLazyImports.add(imp));
 	});
 
-	const createNodes = /** @param {import("../types").MetafilePart} meta */ (meta) => {
-		const entryPoints = Object.keys(bundleStats.entryStats);
-		Object.entries(meta).forEach(([path, output]) => {
-			const isEntry = entryPoints.includes(path);
-			const isLazy = !allEagerImports.has(path);
-			nodes.push({
-				id: path,
-				group: isEntry ? 'entry' : isLazy ? 'lazy' : 'eager',
-				size: output.bytes,
-			});
-
-			output.imports.forEach((imp) => {
-				if (!imp.external) {
-					links.push({
-						source: path,
-						target: imp.path,
-					});
-				}
-			});
+	const entryPoints = Object.keys(bundleStats.entryStats);
+	Object.entries(meta).forEach(([path, output]) => {
+		if (!selectedFiles.has(path)) return;
+		const isEntry = entryPoints.includes(path);
+		const isLazy = !allEagerImports.has(path);
+		nodes.push({
+			id: path,
+			group: isEntry ? 'entry' : isLazy ? 'lazy' : 'eager',
+			size: output.bytes,
 		});
-	};
 
-	if (mode === 'files') {
-		createNodes(metafile.inputs);
-	} else {
-		createNodes(metafile.outputs);
-	}
+		output.imports.forEach((imp) => {
+			if (!imp.external && selectedFiles.has(imp.path)) {
+				links.push({
+					source: path,
+					target: imp.path,
+				});
+			}
+		});
+	});
 
 	const simulation = d3
 		.forceSimulation(nodes)

@@ -11,6 +11,7 @@
 ### Added
 
 - Improved tooltips on import graph
+- Ability to remove nodes from graph
 
 ### Fixed
 
