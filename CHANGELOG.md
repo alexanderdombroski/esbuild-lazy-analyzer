@@ -6,6 +6,16 @@
 
 - [1.0](#101---2025-11-11) - Initial Release
 
+## [1.1.0] - Unreleased
+
+### Added
+
+- Improved tooltips on import graph
+
+### Fixed
+
+### Changed
+
 ## [1.0.1] - 2025-11-11
 
 ### Added

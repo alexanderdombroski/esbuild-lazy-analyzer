@@ -413,7 +413,21 @@ function initGraph(mode) {
 		.attr('dy', 4)
 		.style('pointer-events', 'none');
 
-	node.append('title').text((d) => `${d.id}\nSize: ${formatBytes(d.size)}\nType: ${d.group}`);
+	// Custom tooltip implementation
+	const tooltip = d3.select('body').append('div').attr('class', 'graph-tooltip');
+
+	node
+		.on('mouseover', (event, d) => {
+			tooltip
+				.style('display', 'block')
+				.html(`${d.id}<br>Size: ${formatBytes(d.size)}<br>Type: ${d.group}`);
+		})
+		.on('mousemove', (event) => {
+			tooltip.style('left', event.pageX + 16 + 'px').style('top', event.pageY - 10 + 'px');
+		})
+		.on('mouseout', () => {
+			tooltip.style('display', 'none');
+		});
 
 	simulation.on('tick', () => {
 		link
