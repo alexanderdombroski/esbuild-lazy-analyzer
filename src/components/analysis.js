@@ -344,6 +344,7 @@ document.querySelectorAll('[data-mode]').forEach((btn) => {
 /** @param {string} mode */
 function initGraph(mode) {
 	if (!metafile || !bundleStats) return;
+	if (mode !== currentGraphMode) selectedFiles.clear();
 	currentGraphMode = mode;
 
 	// Render node list grid for selection
