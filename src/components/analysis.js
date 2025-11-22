@@ -486,7 +486,31 @@ function initGraph(mode) {
 			tooltip.style('display', 'block').html(nodeTooltipTemplate(d, mode));
 		})
 		.on('mousemove', (event) => {
-			tooltip.style('left', event.pageX + 16 + 'px').style('top', event.pageY - 10 + 'px');
+			const tooltipNode = /** @type {HTMLDivElement} */ (tooltip.node());
+			const tooltipWidth = tooltipNode.offsetWidth;
+			const tooltipHeight = tooltipNode.offsetHeight;
+
+			let left = event.pageX + 16;
+			let top = event.pageY - 10;
+
+			// Check right boundary
+			if (left + tooltipWidth > window.innerWidth) {
+				left = event.pageX - tooltipWidth - 16;
+			}
+			// Check bottom boundary
+			if (top + tooltipHeight > window.innerHeight + window.scrollY) {
+				top = event.pageY - tooltipHeight - 10;
+			}
+			// Check top boundary
+			if (top < window.scrollY) {
+				top = event.pageY + 10;
+			}
+			// Check left boundary
+			if (left < 0) {
+				left = event.pageX + 16;
+			}
+
+			tooltip.style('left', left + 'px').style('top', top + 'px');
 		})
 		.on('mouseout', () => {
 			tooltip.style('display', 'none');

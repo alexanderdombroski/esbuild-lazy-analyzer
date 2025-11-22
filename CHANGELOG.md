@@ -7,6 +7,16 @@
 - [1.1](#101---2025-11-21) - Graph Improvements
 - [1.0](#101---2025-11-11) - Initial Release
 
+## [1.2.0] - Unreleased
+
+### Added
+
+- List of bundled files on chunk graph tooltips
+
+### Fixed
+
+- Ensure tooltip doesn't appear off screen
+
 ## [1.1.0] - 2025-11-21
 
 ### Added
