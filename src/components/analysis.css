@@ -404,6 +404,10 @@ body {
 	display: none;
 }
 
+.graph-tooltip li {
+	margin-left: 1rem;
+}
+
 /* Scroll Bar */
 
 /* WebKit (Chrome, Edge, Safari) */

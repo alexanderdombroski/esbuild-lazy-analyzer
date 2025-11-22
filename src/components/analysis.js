@@ -1,37 +1,6 @@
-// Track selected files for graph rendering
-let selectedFiles = new Set();
-
-function renderNodeList(meta) {
-	const grid = document.getElementById('node-list-grid');
-	if (!grid) return;
-	grid.innerHTML = '';
-	const files = Object.keys(meta);
-	// If first load, select all files
-	if (selectedFiles.size === 0) files.forEach((f) => selectedFiles.add(f));
-	files.forEach((file) => {
-		const label = document.createElement('label');
-		label.className = 'node-list-item';
-		const checkbox = document.createElement('input');
-		checkbox.type = 'checkbox';
-		checkbox.checked = selectedFiles.has(file);
-		checkbox.className = 'node-list-checkbox';
-		checkbox.addEventListener('change', () => {
-			if (checkbox.checked) {
-				selectedFiles.add(file);
-			} else {
-				selectedFiles.delete(file);
-			}
-			// Rerender graph after selection change
-			initGraph(currentGraphMode);
-		});
-		label.appendChild(checkbox);
-		const span = document.createElement('span');
-		span.textContent = file.split('/').pop() || file;
-		span.title = file;
-		label.appendChild(span);
-		grid.appendChild(label);
-	});
-}
+// ------------------------------------------------------------ //
+// --------------------     STATS PAGE     -------------------- //
+// ------------------------------------------------------------ //
 
 let currentGraphMode = 'files';
 /** @type {NodeListOf<HTMLLinkElement>} */ (document.querySelectorAll('.nav-link')).forEach(
@@ -325,6 +294,45 @@ function renderEntryChart() {
 	});
 }
 
+// ------------------------------------------------------------ //
+// --------------------     GRAPH PAGE     -------------------- //
+// ------------------------------------------------------------ //
+
+// Track selected files for graph rendering
+let selectedFiles = new Set();
+
+function renderNodeList(meta) {
+	const grid = document.getElementById('node-list-grid');
+	if (!grid) return;
+	grid.innerHTML = '';
+	const files = Object.keys(meta);
+	// If first load, select all files
+	if (selectedFiles.size === 0) files.forEach((f) => selectedFiles.add(f));
+	files.forEach((file) => {
+		const label = document.createElement('label');
+		label.className = 'node-list-item';
+		const checkbox = document.createElement('input');
+		checkbox.type = 'checkbox';
+		checkbox.checked = selectedFiles.has(file);
+		checkbox.className = 'node-list-checkbox';
+		checkbox.addEventListener('change', () => {
+			if (checkbox.checked) {
+				selectedFiles.add(file);
+			} else {
+				selectedFiles.delete(file);
+			}
+			// Rerender graph after selection change
+			initGraph(currentGraphMode);
+		});
+		label.appendChild(checkbox);
+		const span = document.createElement('span');
+		span.textContent = file.split('/').pop() || file;
+		span.title = file;
+		label.appendChild(span);
+		grid.appendChild(label);
+	});
+}
+
 document.querySelectorAll('[data-mode]').forEach((btn) => {
 	btn.addEventListener('click', () => {
 		const dataset = /** @type {HTMLButtonElement} */ (btn).dataset;
@@ -342,6 +350,26 @@ document.querySelectorAll('[data-mode]').forEach((btn) => {
 		initGraph(mode);
 	});
 });
+
+/**
+ * @param {Object} d
+ * @param {string} d.id
+ * @param {number} d.size
+ * @param {string} d.group
+ * @param {string} mode
+ */
+const nodeTooltipTemplate = ({ id, size, group }, mode) => {
+	const base = `${id}<br>Size: ${formatBytes(size)}<br>Type: ${group}`;
+	if (mode === 'files') return base;
+
+	const bundledFiles = Object.keys(metafile.outputs[id].inputs);
+	const entrypoint = metafile.outputs[id].entryPoint;
+	if (entrypoint && !bundledFiles.includes(entrypoint)) bundledFiles.unshift(entrypoint);
+	if (bundledFiles.length === 0) return base;
+
+	const fileList = bundledFiles.map((file) => `<li>${file}</li>`).join('');
+	return `${base}<br>Files: <br><ul>${fileList}</ul>`;
+};
 
 /** @param {string} mode */
 function initGraph(mode) {
@@ -455,9 +483,7 @@ function initGraph(mode) {
 
 	node
 		.on('mouseover', (event, d) => {
-			tooltip
-				.style('display', 'block')
-				.html(`${d.id}<br>Size: ${formatBytes(d.size)}<br>Type: ${d.group}`);
+			tooltip.style('display', 'block').html(nodeTooltipTemplate(d, mode));
 		})
 		.on('mousemove', (event) => {
 			tooltip.style('left', event.pageX + 16 + 'px').style('top', event.pageY - 10 + 'px');
@@ -505,6 +531,10 @@ function initGraph(mode) {
 		event.subject.fy = null;
 	}
 }
+
+// ------------------------------------------------------------ //
+// --------------------     LOAD LOGIC     -------------------- //
+// ------------------------------------------------------------ //
 
 // Initialize on load
 function initializeAnalyzerPage() {
