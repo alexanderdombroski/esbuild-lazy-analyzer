@@ -38,6 +38,8 @@ let currentGraphMode = 'files';
 	(link) => {
 		link.addEventListener('click', () => {
 			const page = link.dataset.page;
+			// Store last visited tab in localStorage
+			localStorage.setItem('analyzer-last-tab', page ?? 'stats');
 
 			// Update nav links
 			document.querySelectorAll('.nav-link').forEach((l) => l.classList.remove('active'));
@@ -505,8 +507,33 @@ function initGraph(mode) {
 }
 
 // Initialize on load
+function initializeAnalyzerPage() {
+	const lastTab = localStorage.getItem('analyzer-last-tab') || 'stats';
+	// Set active nav and page
+	document.querySelectorAll('.nav-link').forEach((l) => {
+		if (/** @type {HTMLLinkElement} */ (l).dataset.page === lastTab) {
+			l.classList.add('active');
+		} else {
+			l.classList.remove('active');
+		}
+	});
+	document.querySelectorAll('.page').forEach((p) => {
+		if (p.id === `${lastTab}-page`) {
+			p.classList.add('active');
+		} else {
+			p.classList.remove('active');
+		}
+	});
+	// Call appropriate init
+	if (lastTab === 'stats') {
+		initStats();
+	} else {
+		initGraph('files');
+	}
+}
+
 if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', initStats);
+	document.addEventListener('DOMContentLoaded', initializeAnalyzerPage);
 } else {
-	initStats();
+	initializeAnalyzerPage();
 }
