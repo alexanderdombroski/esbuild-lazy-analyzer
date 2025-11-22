@@ -4,9 +4,10 @@
 
 ## Table of Contents
 
+- [1.1](#101---2025-11-21) - Graph Improvements
 - [1.0](#101---2025-11-11) - Initial Release
 
-## [1.1.0] - Unreleased
+## [1.1.0] - 2025-11-21
 
 ### Added
 
@@ -15,7 +16,7 @@
 
 ### Fixed
 
-### Changed
+- When regenerating the file, it will remember the last used tab
 
 ## [1.0.1] - 2025-11-11
 
