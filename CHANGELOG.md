@@ -12,6 +12,7 @@
 ### Added
 
 - List of bundled files on chunk graph tooltips
+- Improved tooltips of enabled nodes list
 
 ### Fixed
 

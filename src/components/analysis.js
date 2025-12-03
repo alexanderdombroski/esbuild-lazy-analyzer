@@ -308,6 +308,17 @@ function renderNodeList(meta) {
 	const files = Object.keys(meta);
 	// If first load, select all files
 	if (selectedFiles.size === 0) files.forEach((f) => selectedFiles.add(f));
+
+	// Create custom tooltip element
+	let nodeListTooltip = /** @type {HTMLDivElement | null} */ (
+		document.querySelector('.node-list-tooltip')
+	);
+	if (!nodeListTooltip) {
+		nodeListTooltip = document.createElement('div');
+		nodeListTooltip.className = 'node-list-tooltip';
+		document.body.appendChild(nodeListTooltip);
+	}
+
 	files.forEach((file) => {
 		const label = document.createElement('label');
 		label.className = 'node-list-item';
@@ -327,7 +338,21 @@ function renderNodeList(meta) {
 		label.appendChild(checkbox);
 		const span = document.createElement('span');
 		span.textContent = file.split('/').pop() || file;
-		span.title = file;
+
+		// Custom tooltip on hover
+		span.addEventListener('mouseenter', () => {
+			if (!nodeListTooltip) return;
+			nodeListTooltip.textContent = file;
+			nodeListTooltip.style.display = 'block';
+			const rect = span.getBoundingClientRect();
+			nodeListTooltip.style.left = rect.left + 'px';
+			nodeListTooltip.style.top = rect.bottom + 5 + 'px';
+		});
+		span.addEventListener('mouseleave', () => {
+			if (!nodeListTooltip) return;
+			nodeListTooltip.style.display = 'none';
+		});
+
 		label.appendChild(span);
 		grid.appendChild(label);
 	});

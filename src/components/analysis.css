@@ -404,6 +404,21 @@ body {
 	display: none;
 }
 
+.node-list-tooltip {
+	position: fixed;
+	pointer-events: none;
+	background: rgba(30, 30, 40, 0.95);
+	color: hsl(210, 40%, 98%);
+	padding: 6px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	z-index: 2000;
+	display: none;
+	max-width: 500px;
+	word-break: break-all;
+}
+
 .graph-tooltip li {
 	margin-left: 1rem;
 }
