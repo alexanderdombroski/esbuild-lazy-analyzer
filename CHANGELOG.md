@@ -4,10 +4,11 @@
 
 ## Table of Contents
 
-- [1.1](#101---2025-11-21) - Graph Improvements
+- [1.2](#120---2025-12-02) - Improved Tooltips
+- [1.1](#110---2025-11-21) - Graph Improvements
 - [1.0](#101---2025-11-11) - Initial Release
 
-## [1.2.0] - Unreleased
+## [1.2.0] - 2025-12-02
 
 ### Added
 
