@@ -413,6 +413,7 @@ function initGraph(mode) {
 	const width = container.clientWidth;
 	const height = container.clientHeight;
 
+	/** @type {Array<{id: string, group: string, size: number, x?: number, y?: number, fx?: number | null, fy?: number | null}>} */
 	const nodes = [];
 	const links = [];
 
@@ -547,14 +548,14 @@ function initGraph(mode) {
 
 	simulation.on('tick', () => {
 		link
-			.attr('x1', (d) => d.source.x)
-			.attr('y1', (d) => d.source.y)
-			.attr('x2', (d) => d.target.x)
-			.attr('y2', (d) => d.target.y);
+			.attr('x1', (d) => d.source.x ?? 0)
+			.attr('y1', (d) => d.source.y ?? 0)
+			.attr('x2', (d) => d.target.x ?? 0)
+			.attr('y2', (d) => d.target.y ?? 0);
 
-		node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+		node.attr('cx', (d) => d.x ?? 0).attr('cy', (d) => d.y ?? 0);
 
-		label.attr('x', (d) => d.x).attr('y', (d) => d.y);
+		label.attr('x', (d) => d.x ?? 0).attr('y', (d) => d.y ?? 0);
 	});
 
 	const zoom = d3
@@ -662,6 +663,7 @@ function renderModalGraph(nodeData, mode) {
 
 	if (!nodeInfo) return;
 
+	/** @type {Array<{id: string, group: string, size: number, x?: number, y?: number, fx?: number | null, fy?: number | null}>} */
 	const modalNodes = [];
 	const modalLinks = [];
 
@@ -824,14 +826,14 @@ function renderModalGraph(nodeData, mode) {
 
 	simulation.on('tick', () => {
 		link
-			.attr('x1', (d) => d.source.x)
-			.attr('y1', (d) => d.source.y)
-			.attr('x2', (d) => d.target.x)
-			.attr('y2', (d) => d.target.y);
+			.attr('x1', (d) => d.source.x ?? 0)
+			.attr('y1', (d) => d.source.y ?? 0)
+			.attr('x2', (d) => d.target.x ?? 0)
+			.attr('y2', (d) => d.target.y ?? 0);
 
-		node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+		node.attr('cx', (d) => d.x ?? 0).attr('cy', (d) => d.y ?? 0);
 
-		label.attr('x', (d) => d.x).attr('y', (d) => d.y);
+		label.attr('x', (d) => d.x ?? 0).attr('y', (d) => d.y ?? 0);
 	});
 
 	const zoom = d3
