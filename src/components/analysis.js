@@ -413,6 +413,7 @@ function initGraph(mode) {
 	const width = container.clientWidth;
 	const height = container.clientHeight;
 
+	/** @type {Array<{id: string, group: string, size: number, x?: number, y?: number, fx?: number | null, fy?: number | null}>} */
 	const nodes = [];
 	const links = [];
 
@@ -539,18 +540,300 @@ function initGraph(mode) {
 		})
 		.on('mouseout', () => {
 			tooltip.style('display', 'none');
+		})
+		.on('click', (event, d) => {
+			event.stopPropagation();
+			openNodeModal(d, mode);
 		});
 
 	simulation.on('tick', () => {
 		link
-			.attr('x1', (d) => d.source.x)
-			.attr('y1', (d) => d.source.y)
-			.attr('x2', (d) => d.target.x)
-			.attr('y2', (d) => d.target.y);
+			.attr('x1', (d) => d.source.x ?? 0)
+			.attr('y1', (d) => d.source.y ?? 0)
+			.attr('x2', (d) => d.target.x ?? 0)
+			.attr('y2', (d) => d.target.y ?? 0);
 
-		node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+		node.attr('cx', (d) => d.x ?? 0).attr('cy', (d) => d.y ?? 0);
 
-		label.attr('x', (d) => d.x).attr('y', (d) => d.y);
+		label.attr('x', (d) => d.x ?? 0).attr('y', (d) => d.y ?? 0);
+	});
+
+	const zoom = d3
+		.zoom()
+		.scaleExtent([0.1, 10])
+		.on('zoom', (event) => {
+			g.attr('transform', event.transform);
+		});
+
+	// @ts-ignore
+	svg.call(zoom);
+
+	function dragstarted(event) {
+		if (!event.active) simulation.alphaTarget(0.3).restart();
+		event.subject.fx = event.subject.x;
+		event.subject.fy = event.subject.y;
+	}
+
+	function dragged(event) {
+		event.subject.fx = event.x;
+		event.subject.fy = event.y;
+	}
+
+	function dragended(event) {
+		if (!event.active) simulation.alphaTarget(0);
+		event.subject.fx = null;
+		event.subject.fy = null;
+	}
+}
+
+// ------------------------------------------------------------ //
+// -------------------     MODAL LOGIC     -------------------- //
+// ------------------------------------------------------------ //
+
+let currentModalNode = null;
+
+/**
+ * Open modal with node details and its import/export graph
+ * @param {Object} nodeData
+ * @param {string} nodeData.id
+ * @param {number} nodeData.size
+ * @param {string} nodeData.group
+ * @param {string} mode
+ */
+function openNodeModal(nodeData, mode) {
+	currentModalNode = nodeData;
+	const modal = /** @type {HTMLElement} */ (document.getElementById('node-modal'));
+	const modalTitle = /** @type {HTMLElement} */ (document.getElementById('modal-title'));
+
+	modalTitle.textContent = nodeData.id.split('/').pop() || nodeData.id;
+	modal.classList.add('active');
+
+	// Render modal graph
+	renderModalGraph(nodeData, mode);
+}
+
+function closeNodeModal() {
+	const modal = /** @type {HTMLElement} */ (document.getElementById('node-modal'));
+	modal.classList.remove('active');
+	currentModalNode = null;
+}
+
+function removeCurrentNode() {
+	if (!currentModalNode) return;
+
+	// Remove from selectedFiles
+	selectedFiles.delete(currentModalNode.id);
+
+	// Update checkbox in node list
+	const checkboxes = /** @type {NodeListOf<HTMLInputElement>} */ (
+		document.querySelectorAll('.node-list-checkbox')
+	);
+	checkboxes.forEach((checkbox) => {
+		const label = checkbox.parentElement;
+		const span = label?.querySelector('span');
+		if (span?.textContent === (currentModalNode.id.split('/').pop() || currentModalNode.id)) {
+			checkbox.checked = false;
+		}
+	});
+
+	// Close modal and re-render graph
+	closeNodeModal();
+	initGraph(currentGraphMode);
+}
+
+/**
+ * Render the modal graph showing imports and exports for the selected node
+ * @param {Object} nodeData
+ * @param {string} nodeData.id
+ * @param {number} nodeData.size
+ * @param {string} nodeData.group
+ * @param {string} mode
+ */
+function renderModalGraph(nodeData, mode) {
+	const svg = d3.select('#modal-graph-svg');
+	svg.selectAll('*').remove();
+
+	const container = /** @type {HTMLElement} */ (document.querySelector('.modal-body'));
+	const width = container.clientWidth;
+	const height = container.clientHeight;
+
+	// Get metadata based on mode
+	const meta = mode === 'files' ? metafile.inputs : metafile.outputs;
+	const nodeInfo = meta[nodeData.id];
+
+	if (!nodeInfo) return;
+
+	/** @type {Array<{id: string, group: string, size: number, x?: number, y?: number, fx?: number | null, fy?: number | null}>} */
+	const modalNodes = [];
+	const modalLinks = [];
+
+	// Add the center node
+	modalNodes.push({
+		id: nodeData.id,
+		group: nodeData.group,
+		size: nodeData.size,
+	});
+
+	// Add nodes that this node imports
+	nodeInfo.imports.forEach((imp) => {
+		if (!imp.external && meta[imp.path]) {
+			modalNodes.push({
+				id: imp.path,
+				group: 'import',
+				size: meta[imp.path].bytes,
+			});
+			modalLinks.push({
+				source: nodeData.id,
+				target: imp.path,
+			});
+		}
+	});
+
+	// Find nodes that import this node
+	Object.entries(meta).forEach(([path, info]) => {
+		if (path === nodeData.id) return;
+		const importsCurrentNode = info.imports.some((imp) => imp.path === nodeData.id);
+		if (importsCurrentNode) {
+			// Check if this node is already added
+			if (!modalNodes.find((n) => n.id === path)) {
+				modalNodes.push({
+					id: path,
+					group: 'importer',
+					size: info.bytes,
+				});
+			}
+			modalLinks.push({
+				source: path,
+				target: nodeData.id,
+			});
+		}
+	});
+
+	const simulation = d3
+		.forceSimulation(modalNodes)
+		.force(
+			'link',
+			d3
+				.forceLink(modalLinks)
+				// @ts-ignore
+				.id((d) => d.id)
+				.distance(120)
+		)
+		.force('charge', d3.forceManyBody().strength(-400))
+		.force('center', d3.forceCenter(width / 2, height / 2))
+		.force(
+			'collision',
+			// @ts-ignore
+			d3.forceCollide().radius((d) => Math.sqrt(d.size) / 20 + 15)
+		);
+
+	const g = svg.append('g');
+
+	// Create arrow markers for directed edges
+	svg
+		.append('defs')
+		.append('marker')
+		.attr('id', 'arrowhead')
+		.attr('viewBox', '0 -5 10 10')
+		.attr('refX', 20)
+		.attr('refY', 0)
+		.attr('markerWidth', 6)
+		.attr('markerHeight', 6)
+		.attr('orient', 'auto')
+		.append('path')
+		.attr('d', 'M0,-5L10,0L0,5')
+		.attr('fill', 'hsl(215, 20%, 65%)');
+
+	const link = g
+		.append('g')
+		.selectAll('line')
+		.data(modalLinks)
+		.join('line')
+		.attr('stroke', 'hsl(215, 20%, 65%)')
+		.attr('stroke-opacity', 0.6)
+		.attr('stroke-width', 2)
+		.attr('marker-end', 'url(#arrowhead)');
+
+	const node = g
+		.append('g')
+		.selectAll('circle')
+		.data(modalNodes)
+		.join('circle')
+		.attr('r', (d) => Math.max(8, Math.sqrt(d.size) / 15))
+		.attr('fill', (d) => {
+			if (d.id === nodeData.id) return 'var(--primary)';
+			if (d.group === 'import') return 'var(--success)';
+			if (d.group === 'importer') return 'var(--warning)';
+			return d.group === 'entry' ? 'var(--info)' : 'var(--text-secondary)';
+		})
+		.attr('stroke', (d) => {
+			if (d.id === nodeData.id) return 'var(--primary)';
+			if (d.group === 'import') return 'var(--success)';
+			if (d.group === 'importer') return 'var(--warning)';
+			return d.group === 'entry' ? 'var(--info)' : 'var(--text-secondary)';
+		})
+		.attr('stroke-width', 3)
+		.style('cursor', 'pointer')
+		// @ts-ignore
+		.call(d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended));
+
+	const label = g
+		.append('g')
+		.selectAll('text')
+		.data(modalNodes)
+		.join('text')
+		.text((d) => d.id.split('/').pop() || d.id)
+		.attr('font-size', 11)
+		.attr('fill', 'hsl(210, 40%, 98%)')
+		.attr('dx', 12)
+		.attr('dy', 4)
+		.style('pointer-events', 'none');
+
+	// Add tooltip for modal graph
+	const modalTooltip = d3.select('body').append('div').attr('class', 'graph-tooltip');
+
+	node
+		.on('mouseover', (event, d) => {
+			const tooltipContent = `${d.id}<br>Size: ${formatBytes(d.size)}<br>Type: ${d.group}`;
+			modalTooltip.style('display', 'block').html(tooltipContent);
+		})
+		.on('mousemove', (event) => {
+			const tooltipNode = /** @type {HTMLDivElement} */ (modalTooltip.node());
+			const tooltipWidth = tooltipNode.offsetWidth;
+			const tooltipHeight = tooltipNode.offsetHeight;
+
+			let left = event.pageX + 16;
+			let top = event.pageY - 10;
+
+			if (left + tooltipWidth > window.innerWidth) {
+				left = event.pageX - tooltipWidth - 16;
+			}
+			if (top + tooltipHeight > window.innerHeight + window.scrollY) {
+				top = event.pageY - tooltipHeight - 10;
+			}
+			if (top < window.scrollY) {
+				top = event.pageY + 10;
+			}
+			if (left < 0) {
+				left = event.pageX + 16;
+			}
+
+			modalTooltip.style('left', left + 'px').style('top', top + 'px');
+		})
+		.on('mouseout', () => {
+			modalTooltip.style('display', 'none');
+		});
+
+	simulation.on('tick', () => {
+		link
+			.attr('x1', (d) => d.source.x ?? 0)
+			.attr('y1', (d) => d.source.y ?? 0)
+			.attr('x2', (d) => d.target.x ?? 0)
+			.attr('y2', (d) => d.target.y ?? 0);
+
+		node.attr('cx', (d) => d.x ?? 0).attr('cy', (d) => d.y ?? 0);
+
+		label.attr('x', (d) => d.x ?? 0).attr('y', (d) => d.y ?? 0);
 	});
 
 	const zoom = d3
@@ -584,6 +867,27 @@ function initGraph(mode) {
 // ------------------------------------------------------------ //
 // --------------------     LOAD LOGIC     -------------------- //
 // ------------------------------------------------------------ //
+
+// Modal event listeners
+document.getElementById('modal-close-btn')?.addEventListener('click', closeNodeModal);
+document.getElementById('modal-remove-btn')?.addEventListener('click', removeCurrentNode);
+
+// Close modal on ESC key
+document.addEventListener('keydown', (event) => {
+	if (event.key === 'Escape') {
+		const modal = /** @type {HTMLElement} */ (document.getElementById('node-modal'));
+		if (modal.classList.contains('active')) {
+			closeNodeModal();
+		}
+	}
+});
+
+// Close modal when clicking on the backdrop
+document.getElementById('node-modal')?.addEventListener('click', (event) => {
+	if (event.target === event.currentTarget) {
+		closeNodeModal();
+	}
+});
 
 // Initialize on load
 function initializeAnalyzerPage() {
