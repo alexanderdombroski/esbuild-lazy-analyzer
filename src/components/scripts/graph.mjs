@@ -187,7 +187,7 @@ export function initGraph(mode) {
 		.selectAll('circle')
 		.data(nodes)
 		.join('circle')
-		.attr('r', (d) => Math.max(5, Math.sqrt(d.size) / 20))
+		.attr('r', 7)
 		.attr('fill', (d) =>
 			d.group === 'entry' ? 'var(--info)' : d.group === 'eager' ? 'var(--success)' : 'var(--warning'
 		)
@@ -466,7 +466,7 @@ function renderModalGraph(nodeData, mode) {
 		.selectAll('circle')
 		.data(modalNodes)
 		.join('circle')
-		.attr('r', (d) => Math.max(8, Math.sqrt(d.size) / 15))
+		.attr('r', 7)
 		.attr('fill', (d) => {
 			if (d.id === nodeData.id) return 'var(--primary)';
 			if (d.group === 'import') return 'var(--success)';
