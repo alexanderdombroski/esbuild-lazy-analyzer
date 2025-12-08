@@ -15,6 +15,7 @@
 		"build": "node esbuild.mjs --watch",
 		"package": "rm -rf dist && node esbuild.mjs --production",
 		"profile": "node esbuild.mjs && esbuild-visualizer --metadata ./profile/meta.json --filename ./profile/visualizer.html && open ./profile/visualizer.html",
+		"lint": "eslint src && tsc --noEmit",
 		"prepare": "husky"
 	},
 	"keywords": [],
