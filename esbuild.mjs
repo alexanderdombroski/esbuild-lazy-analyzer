@@ -1,4 +1,4 @@
-import { context } from 'esbuild';
+import { context, build } from 'esbuild';
 import fs from 'node:fs/promises';
 
 const production = process.argv.includes('--production');
@@ -28,28 +28,51 @@ const esbuildProblemMatcherPlugin = {
  * @type {import('esbuild').Plugin}
  */
 const minifyCSSTextPlugin = {
-    name: 'minify-css-text',
-    setup(build) {
-        build.onLoad({ filter: /\.css$/ }, async (args) => {
-            const css = await fs.readFile(args.path, 'utf8');
-            // Simple CSS minification
-            const minified = production 
-                ? css
-                    .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
-                    .replace(/\s+/g, ' ') // Collapse whitespace
-                    .replace(/\s*([{}:;,])\s*/g, '$1') // Remove space around special chars
-                    .replace(/;}/g, '}') // Remove last semicolon in block
-                    .trim()
-                : css;
-            return {
-                contents: minified,
-                loader: 'text',
-            };
-        });
-    },
+	name: 'minify-css-text',
+	setup(build) {
+		build.onLoad({ filter: /\.css$/ }, async (args) => {
+			const css = await fs.readFile(args.path, 'utf8');
+			// Simple CSS minification
+			const minified = production
+				? css
+						.replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
+						.replace(/\s+/g, ' ') // Collapse whitespace
+						.replace(/\s*([{}:;,])\s*/g, '$1') // Remove space around special chars
+						.replace(/;}/g, '}') // Remove last semicolon in block
+						.trim()
+				: css;
+			return {
+				contents: minified,
+				loader: 'text',
+			};
+		});
+	},
 };
 
+/**
+ * Bundle the component JavaScript files into a single minified file
+ */
+async function bundleComponents() {
+	console.log('[components] bundling started');
+	await build({
+		entryPoints: ['src/components/analysis.js'],
+		bundle: true,
+		format: 'iife',
+		minify: production,
+		treeShaking: production,
+		sourcemap: false,
+		platform: 'browser',
+		outfile: 'dist/bundle.js',
+		target: 'es2020',
+		logLevel: 'warning',
+	});
+	console.log('[components] bundling finished');
+}
+
 async function main() {
+	// Bundle components before building main
+	await bundleComponents();
+
 	const ctx = await context({
 		entryPoints: ['src/main.ts'],
 		bundle: true,
@@ -69,7 +92,7 @@ async function main() {
 		minifySyntax: true,
 		chunkNames: 'chunks/[name]-[hash]',
 		metafile: true,
-		loader: { '.css': 'text', '.html': 'text', '.js': 'text' },
+		loader: { '.css': 'text', '.html': 'text', '.js': 'text', '.mjs': 'text' },
 	});
 	if (watch) {
 		await ctx.watch();

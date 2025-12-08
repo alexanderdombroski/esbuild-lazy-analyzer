@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "ES2020",
+		"module": "ES2020",
 		"allowJs": true, // include JS files
 		"checkJs": true, // check JS files
 		"noImplicitAny": false,
@@ -9,5 +10,5 @@
 		"strict": true,
 		"typeRoots": ["src/types", "node_modules/@types"]
 	},
-	"include": ["src/**/*.js", "src/**/*.d.ts"]
+	"include": ["src/**/*.js", "src/**/*.d.ts", "src/**/*.mjs"]
 }

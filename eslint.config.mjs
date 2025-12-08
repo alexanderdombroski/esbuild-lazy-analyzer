@@ -36,6 +36,7 @@ export default [
 				{
 					ts: 'never',
 					js: 'always',
+					mjs: 'always',
 				},
 			],
 
