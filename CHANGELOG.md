@@ -4,9 +4,22 @@
 
 ## Table of Contents
 
+- [1.3](#130---2025-12-07) - Graph Modal
 - [1.2](#120---2025-12-02) - Improved Tooltips
 - [1.1](#110---2025-11-21) - Graph Improvements
 - [1.0](#101---2025-11-11) - Initial Release
+
+## [1.3.0] - 2025-12-07
+
+### Added
+
+- Added modal to look closer at imports of specific files
+- Added button to make it easier to remove nodes of choice
+
+### Fixed
+
+- Improved build minification
+- Graph nodes use consistent size
 
 ## [1.2.0] - 2025-12-02
 

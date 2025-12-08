@@ -1,13 +1,13 @@
 {
 	"name": "esbuild-lazy-analyzer",
-	"version": "1.2.0",
-	"description": "An esbuild visualizer that anaylizes lazy-loading of chunks",
+	"version": "1.3.0",
+	"description": "An esbuild visualizer that analyzes lazy-loading of chunks",
 	"main": "dist/main.js",
 	"bin": {
 		"esbuild-lazy-analyzer": "dist/main.js"
 	},
 	"files": [
-		"dist/"
+		"dist/main.js"
 	],
 	"scripts": {
 		"start": "npm run package && node dist/main.js --metafile ./profile/meta.json --outreport ./profile/lazy-analyzer.html && open ./profile/lazy-analyzer.html",
