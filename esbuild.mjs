@@ -1,5 +1,8 @@
 import { context, build } from 'esbuild';
 import fs from 'node:fs/promises';
+import htmlnano from 'htmlnano';
+import postcss from "postcss";
+import cssnano from 'cssnano';
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -24,29 +27,46 @@ const esbuildProblemMatcherPlugin = {
 	},
 };
 
-/**
- * @type {import('esbuild').Plugin}
- */
-const minifyCSSTextPlugin = {
-	name: 'minify-css-text',
-	setup(build) {
-		build.onLoad({ filter: /\.css$/ }, async (args) => {
-			const css = await fs.readFile(args.path, 'utf8');
-			// Simple CSS minification
-			const minified = production
-				? css
-						.replace(/\/\*[\s\S]*?\*\//g, '') // Remove comments
-						.replace(/\s+/g, ' ') // Collapse whitespace
-						.replace(/\s*([{}:;,])\s*/g, '$1') // Remove space around special chars
-						.replace(/;}/g, '}') // Remove last semicolon in block
-						.trim()
-				: css;
-			return {
-				contents: minified,
-				loader: 'text',
-			};
-		});
-	},
+/** @type {import('esbuild').Plugin} */
+export const htmlCssNanoPlugin = {
+  name: "html-css-nano",
+  setup(build) {
+    /* ---------- HTML ---------- */
+    build.onLoad({ filter: /\.html$/ }, async (args) => {
+      const html = await fs.readFile(args.path, "utf8");
+
+      const { html: minifiedHtml } = await htmlnano.process(html, {
+        collapseWhitespace: 'all',
+        removeComments: 'all',
+				minifyJs: false,
+				minifySvg: false,
+      });
+
+      return {
+        contents: minifiedHtml,
+        loader: "text",
+      };
+    });
+
+    /* ---------- CSS ---------- */
+    build.onLoad({ filter: /\.css$/ }, async (args) => {
+      const css = await fs.readFile(args.path, "utf8");
+
+      const result = await postcss([
+        cssnano({
+          preset: "default",
+        }),
+      ]).process(css, {
+        from: args.path,
+        map: false,
+      });
+
+      return {
+        contents: result.css,
+        loader: "text",
+      };
+    });
+  },
 };
 
 /**
@@ -88,7 +108,7 @@ async function main() {
 		splitting: true,
 		external: [...(await import('node:module')).builtinModules],
 		logLevel: 'silent',
-		plugins: [esbuildProblemMatcherPlugin, minifyCSSTextPlugin],
+		plugins: [esbuildProblemMatcherPlugin, htmlCssNanoPlugin],
 		minifySyntax: true,
 		chunkNames: 'chunks/[name]-[hash]',
 		metafile: true,
