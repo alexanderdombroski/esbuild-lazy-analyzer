@@ -112,7 +112,7 @@ function hideLazyNodes() {
 	
 	const meta = currentGraphMode === 'files' ? window.metafile.inputs : window.metafile.outputs;
 	const allEagerImports = new Set();
-	const entryPoints = Object.keys(window.bundleStats.entryStats);
+	const entryPoints = new Set(Object.keys(window.bundleStats.entryStats));
 	
 	// Collect all eager imports
 	Object.values(window.bundleStats.entryStats).forEach((entry) => {
@@ -121,7 +121,7 @@ function hideLazyNodes() {
 	
 	// Remove lazy nodes from selectedFiles
 	Object.keys(meta).forEach((path) => {
-		const isEntry = entryPoints.includes(path);
+		const isEntry = entryPoints.has(path);
 		const isLazy = !allEagerImports.has(path);
 		if (isLazy && !isEntry) {
 			selectedFiles.delete(path);
