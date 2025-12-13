@@ -350,6 +350,31 @@ body {
 	padding: 1rem;
 }
 
+.node-list-summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+}
+
+.toggle-lazy-btn {
+	padding: 0.375rem 0.75rem;
+	border-radius: 0.375rem;
+	border: 1px solid var(--border);
+	background: transparent;
+	color: var(--text-primary);
+	cursor: pointer;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s;
+	margin-left: auto;
+}
+
+.toggle-lazy-btn:hover {
+	background: var(--bg-tertiary);
+	border-color: var(--text-secondary);
+}
+
 .node-list-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));

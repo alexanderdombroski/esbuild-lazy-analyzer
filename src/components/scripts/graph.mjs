@@ -83,6 +83,72 @@ document.querySelectorAll('[data-mode]').forEach((btn) => {
 	});
 });
 
+// Toggle lazy button functionality
+let isShowingAll = true; // Track the current state
+
+const toggleLazyBtn = document.getElementById('toggle-lazy-btn');
+if (toggleLazyBtn) {
+	toggleLazyBtn.addEventListener('click', (event) => {
+		event.stopPropagation(); // Prevent details from toggling
+		
+		if (isShowingAll) {
+			// Hide lazy nodes
+			hideLazyNodes();
+			toggleLazyBtn.textContent = 'Show All';
+		} else {
+			// Show all nodes
+			showAllNodes();
+			toggleLazyBtn.textContent = 'Hide Lazy';
+		}
+		isShowingAll = !isShowingAll;
+	});
+}
+
+/**
+ * Hide lazy nodes by unchecking their checkboxes
+ */
+function hideLazyNodes() {
+	if (!window.metafile || !window.bundleStats) return;
+	
+	const meta = currentGraphMode === 'files' ? window.metafile.inputs : window.metafile.outputs;
+	const allEagerImports = new Set();
+	const entryPoints = Object.keys(window.bundleStats.entryStats);
+	
+	// Collect all eager imports
+	Object.values(window.bundleStats.entryStats).forEach((entry) => {
+		entry.eagerImports.forEach((imp) => allEagerImports.add(imp));
+	});
+	
+	// Remove lazy nodes from selectedFiles
+	Object.keys(meta).forEach((path) => {
+		const isEntry = entryPoints.includes(path);
+		const isLazy = !allEagerImports.has(path);
+		if (isLazy && !isEntry) {
+			selectedFiles.delete(path);
+		}
+	});
+	
+	// Re-render the graph and node list
+	initGraph(currentGraphMode);
+}
+
+/**
+ * Show all nodes by checking all checkboxes
+ */
+function showAllNodes() {
+	if (!window.metafile || !window.bundleStats) return;
+	
+	const meta = currentGraphMode === 'files' ? window.metafile.inputs : window.metafile.outputs;
+	
+	// Add all nodes back to selectedFiles
+	Object.keys(meta).forEach((path) => {
+		selectedFiles.add(path);
+	});
+	
+	// Re-render the graph and node list
+	initGraph(currentGraphMode);
+}
+
 /**
  * @param {Object} d
  * @param {string} d.id
