@@ -350,6 +350,44 @@ body {
 	padding: 1rem;
 }
 
+.node-list-summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+}
+
+.node-list-summary::before {
+	content: '+';
+	display: inline-block;
+	margin-right: 0.5rem;
+	font-size: 1.25rem;
+	line-height: 1;
+	width: 1rem;
+	text-align: center;
+}
+
+.node-list-card[open] .node-list-summary::before {
+	content: '\2013'; /* n-dash (same width as plus) */
+}
+
+.toggle-lazy-btn {
+	padding: 0.375rem 0.75rem;
+	border-radius: 0.375rem;
+	border: 1px solid var(--border);
+	background: transparent;
+	color: var(--text-primary);
+	cursor: pointer;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition: all 0.2s;
+	margin-left: auto;
+}
+
+.toggle-lazy-btn:hover {
+	background: var(--bg-tertiary);
+}
+
 .node-list-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
