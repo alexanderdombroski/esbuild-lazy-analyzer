@@ -18,7 +18,12 @@
 		"lint": "eslint src && tsc --noEmit",
 		"prepare": "husky"
 	},
-	"keywords": [],
+	"keywords": [
+		"cli",
+		"performance",
+		"esbuild",
+		"profiler"
+	],
 	"author": "Alex Dombroski",
 	"license": "MIT",
 	"repository": {
